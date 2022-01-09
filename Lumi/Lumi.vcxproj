@@ -140,6 +140,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lumi.cpp" />
+    <ClCompile Include="scanner.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="scanner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

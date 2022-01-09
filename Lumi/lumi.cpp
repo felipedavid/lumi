@@ -1,5 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
+
+#include "scanner.h"
 
 void *xmalloc(size_t n_bytes) {
     void *ptr = malloc(n_bytes);
