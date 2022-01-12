@@ -23,17 +23,23 @@ enum Token_Type {
 
 struct Token {
     Token_Type type;
-    const char *lexeme;
+    const char *lexeme_start;
+    const char *lexeme_end;
     int line;
 
-    Token(Token_Type type, const char *lexeme, int line);
     const char *to_string();
 };
 
 struct Scanner {
     const char *source;
+    size_t source_len;
     std::vector<Token> tokens;
+    int start = 0;
+    int current = 0;
+    int line = 1;
 
     Scanner(const char *source);
+    Token_Type scan_token(Token *tk);
     std::vector<Token> scan_tokens();
+    bool is_at_end();
 };

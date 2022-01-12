@@ -13,8 +13,8 @@ void *xmalloc(size_t n_bytes) {
     return ptr;
 }
 
-void *xrealloc(void *ptr, size_t n_bytes) {
-    ptr = realloc(ptr, n_bytes);
+void *xrealloc(void *prev_ptr, size_t n_bytes) {
+    void *ptr = realloc(prev_ptr, n_bytes);
     if (!ptr) {
         perror("[!] xrealloc failed!");
         exit(1);
@@ -26,8 +26,8 @@ void run(const char *source) {
     Scanner scanner(source);
     std::vector<Token> tokens = scanner.scan_tokens();
 
-    for (auto token : tokens) {
-        printf("Token: %s\n", token.lexeme);
+    for (int i = 0; i < tokens.size(); i++) {
+        printf("Token: %.*s\n", (int)(tokens[i].lexeme_end - tokens[i].lexeme_start), tokens[i].lexeme_start);
     }
 }
 
@@ -53,7 +53,7 @@ void run_file(const char *file_name) {
 
 const char* get_user_input() {
     size_t cap = 256;
-    char *input = (char *) malloc(cap);
+    char *input = (char *) xmalloc(cap);
 
     char c;
     size_t len = 0;
