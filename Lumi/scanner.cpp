@@ -18,7 +18,7 @@ Scanner::Scanner(const char *source) {
 
 Token_Type Scanner::scan_token(Token *tk) {
     tk->lexeme_start = source;
-    switch (*source) {
+    switch (*source++) {
           case '(': tk->type = LEFT_PAREN; break;
           case ')': tk->type = RIGHT_PAREN; break;
           case '{': tk->type = LEFT_BRACE; break;

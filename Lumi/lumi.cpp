@@ -52,8 +52,8 @@ void run_file(const char *file_name) {
 }
 
 const char* get_user_input() {
-    size_t cap = 256;
-    char *input = (char *) xmalloc(cap);
+    static size_t cap = 256;
+    static char *input = (char *) xmalloc(cap);
 
     char c;
     size_t len = 0;
@@ -72,7 +72,6 @@ void run_prompt() {
         const char *source = get_user_input();
         if (source == NULL) break;
         run(source);
-        free((void*)source);
     }
 }
 
