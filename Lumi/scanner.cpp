@@ -29,6 +29,51 @@ Token_Type Scanner::scan_token(Token *tk) {
           case '+': tk->type = PLUS; break;
           case ';': tk->type = SEMICOLON; break;
           case '*': tk->type = STAR; break;
+          case '!': 
+              if (*source == '=') {
+                  tk->type = BANG_EQUAL;
+                  source++;
+              } else {
+                  tk->type = BANG;
+              }
+              break;
+          case '=': 
+              if (*source == '=') {
+                  tk->type = EQUAL_EQUAL;
+                  source++;
+              } else {
+                  tk->type = EQUAL;
+              }
+              break;
+          case '<': 
+              if (*source == '=') {
+                  tk->type = LESS_EQUAL;
+                  source++;
+              } else {
+                  tk->type = LESS;
+              }
+              break;
+          case '>': 
+              if (*source == '=') {
+                  tk->type = GREATER_EQUAL;
+                  source++;
+              } else {
+                  tk->type = GREATER;
+              }
+              break;
+          case '/': 
+              if (*source == '/') {
+                  while (*(++source) == '/');
+              } else {
+                  tk->type = SLASH;
+              }
+              break;
+          case ' ':
+          case '\r':
+          case '\t':
+            // Ignore white spaces
+            break;
+          case '\n': line++; break;
           default: tk->type = EOFF; break;
     }
     tk->line = line;
