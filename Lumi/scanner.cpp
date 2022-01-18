@@ -2,12 +2,14 @@
 #include <string>
 
 #include "scanner.h"
+#include "common.h"
 
 // WARNING: "buf" is stack allocated so it will be messed up in the
 // next function call, so, be careful.
 const char *Token::to_string() {
     char buf[256];
-    snprintf(buf, sizeof(buf), "%d %.*s %d\n", type, (int)(lexeme_end - lexeme_start), lexeme_start, line);
+    snprintf(buf, sizeof(buf), "type: %d, lexeme: %.*s, line: %d\n", 
+        type, (int)(lexeme_end - lexeme_start), lexeme_start, line);
     return buf;
 }
 
@@ -20,6 +22,7 @@ Token_Type Scanner::scan_token(Token *tk) {
     tk->type = NONE;
     tk->lexeme_start = source;
     tk->line = line;
+
     switch (*source++) {
     case '0':
     case '1':
@@ -93,60 +96,47 @@ Token_Type Scanner::scan_token(Token *tk) {
     case 'x':
     case 'y':
     case 'z': 
-        while (isalpha(*source)) {
-            source++;
-        }
-        //tk->name = str_intern_range(tk->lexeme_start, source);
+        while (isalpha(*source) || *source == '_') source++;
+        tk->name = str_intern_range(tk->lexeme_start, source);
         tk->type = IDENTIFIER;
         break;
-    case '(': tk->type = LEFT_PAREN; break;
+    case '(': tk->type = LEFT_PAREN;  break;
     case ')': tk->type = RIGHT_PAREN; break;
-    case '{': tk->type = LEFT_BRACE; break;
+    case '{': tk->type = LEFT_BRACE;  break;
     case '}': tk->type = RIGHT_BRACE; break;
-    case ',': tk->type = COMMA; break;
-    case '.': tk->type = DOT; break;
-    case '-': tk->type = MINUS; break;
-    case '+': tk->type = PLUS; break;
-    case ';': tk->type = SEMICOLON; break;
-    case '*': tk->type = STAR; break;
+    case ',': tk->type = COMMA;       break;
+    case '.': tk->type = DOT;         break;
+    case '-': tk->type = MINUS;       break;
+    case '+': tk->type = PLUS;        break;
+    case ';': tk->type = SEMICOLON;   break;
+    case '*': tk->type = STAR;        break;
     case '!': 
         if (*source == '=') {
             tk->type = BANG_EQUAL;
             source++;
-        } else {
-            tk->type = BANG;
-        }
+        } else tk->type = BANG;
         break;
     case '=': 
         if (*source == '=') {
             tk->type = EQUAL_EQUAL;
             source++;
-        } else {
-            tk->type = EQUAL;
-        }
+        } else tk->type = EQUAL;
         break;
     case '<': 
         if (*source == '=') {
             tk->type = LESS_EQUAL;
             source++;
-        } else {
-            tk->type = LESS;
-        }
+        } else tk->type = LESS;
         break;
     case '>': 
         if (*source == '=') {
             tk->type = GREATER_EQUAL;
             source++;
-        } else {
-            tk->type = GREATER;
-        }
+        } else tk->type = GREATER;
         break;
     case '/': 
-        if (*source == '/') {
-            while (*(++source) != '\n');
-        } else {
-            tk->type = SLASH;
-        }
+        if (*source == '/') while (*(++source) != '\n');
+        else tk->type = SLASH;
         break;
     case '"':
         tk->type = STRING;
@@ -156,9 +146,7 @@ Token_Type Scanner::scan_token(Token *tk) {
         }
         if (*source == '\0') {
             fprintf(stderr, "Not ending string on line %d.\n", tk->line);
-        } else {
-            source++;
-        }
+        } else source++;
     case ' ':
     case '\r':
     case '\t':

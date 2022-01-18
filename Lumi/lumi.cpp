@@ -3,31 +3,14 @@
 #include <vector>
 
 #include "scanner.h"
-
-void *xmalloc(size_t n_bytes) {
-    void *ptr = malloc(n_bytes);
-    if (!ptr) {
-        perror("[!] xmalloc failed!");
-        exit(1);
-    }
-    return ptr;
-}
-
-void *xrealloc(void *prev_ptr, size_t n_bytes) {
-    void *ptr = realloc(prev_ptr, n_bytes);
-    if (!ptr) {
-        perror("[!] xrealloc failed!");
-        exit(1);
-    }
-    return ptr;
-}
+#include "common.h"
 
 void run(const char *source) {
     Scanner scanner(source);
     std::vector<Token> tokens = scanner.scan_tokens();
 
     for (int i = 0; i < tokens.size(); i++) {
-        printf("Token: %.*s\n", (int)(tokens[i].lexeme_end - tokens[i].lexeme_start), tokens[i].lexeme_start);
+        printf(tokens[i].to_string());
     }
 }
 
@@ -76,6 +59,8 @@ void run_prompt() {
 }
 
 int main(int argc, char **argv) {
+    intern_test();
+
     if (argc > 2) {
         printf("Usage: %s <script>\n", argv[0]);
     } else if (argc == 2) {
