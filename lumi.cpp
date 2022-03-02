@@ -3,17 +3,9 @@
 #include <string.h>
 
 #include "lexer.h"
+#include "common.h"
 
 #define USER_INPUT_SIZE 256
-
-void *xmalloc(size_t n_bytes) {
-    void *ptr = malloc(n_bytes);
-    if (!ptr) {
-        fprintf(stderr, "[!] xmalloc failed\n");
-        exit(1);
-    }
-    return ptr;
-}
 
 void run(const char *source) {
     Lexer lex;

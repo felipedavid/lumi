@@ -5,9 +5,9 @@ enum Token_Type {
     TOKEN_NUMBER,
     TOKEN_ERROR,
 	TOKEN_BANG_EQUAL,
-	TOKEN_EQUAL_EQUAL,
-	TOKEN_LESS_EQUAL,
-	TOKEN_GREATER_EQUAL,
+    TOKEN_EQUAL_EQUAL,
+    TOKEN_LESS_EQUAL,
+    TOKEN_GREATER_EQUAL,
 };
 
 struct Token {
@@ -27,7 +27,7 @@ struct Lexer {
     Token curr_tk;
     const char *source;
 
-	int line = 0;
+    int line = 1;
 
     void init(const char *source);
     Token *get_next_token();

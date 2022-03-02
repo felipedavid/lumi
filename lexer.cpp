@@ -21,7 +21,7 @@ void Lexer::init(const char *source) {
 
 // If (*source++) == ch, returns type
 // else return ch
-#define match(ch, type) ((Token_Type)(*(++source) == ch ? source++, type : *(source-1)))
+#define match(ch, type) ((Token_Type)(*(++source) == ch ? source++, type : ch))
 
 Token *Lexer::get_next_token() {
 LOOP:
@@ -44,20 +44,28 @@ LOOP:
         }
         curr_tk.type = TOKEN_IDENT;
     } break;
-	case '!': curr_tk.type = match('=', TOKEN_BANG_EQUAL);    break;
-	case '=': curr_tk.type = match('=', TOKEN_EQUAL_EQUAL);   break;
-	case '<': curr_tk.type = match('=', TOKEN_LESS_EQUAL);    break;
-	case '>': curr_tk.type = match('=', TOKEN_GREATER_EQUAL); break;
-	case ' ': 
-	case '\t':
-	case '\r':
-		source++;
-		goto LOOP;
-		break;
-	case '\n': 
-		line++; 
-		goto LOOP;
-		break;
+    case '/':
+        if (*++source == '/') {
+            while (*source && *source != '\n') source++;
+            goto LOOP;
+        } else {
+            curr_tk.type = (Token_Type) '/';
+        }
+        break;
+    case '!': curr_tk.type = match('=', TOKEN_BANG_EQUAL);    break;
+    case '=': curr_tk.type = match('=', TOKEN_EQUAL_EQUAL);   break;
+    case '<': curr_tk.type = match('=', TOKEN_LESS_EQUAL);    break;
+    case '>': curr_tk.type = match('=', TOKEN_GREATER_EQUAL); break;
+    case ' ': 
+    case '\t':
+    case '\r':
+        source++;
+        goto LOOP;
+        break;
+    case '\n': 
+        line++; 
+        goto LOOP;
+        break;
     default:
         curr_tk.type = (Token_Type) *source++;
         break;
