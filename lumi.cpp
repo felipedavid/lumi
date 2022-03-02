@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "lexer.h"
 
@@ -20,7 +21,7 @@ void run(const char *source) {
 
     Token *tk = lex.get_next_token();
     while (tk->type) {
-        printf("%d\n", tk->type);
+        tk->log();
         tk = lex.get_next_token();
     }
 }
@@ -49,6 +50,7 @@ void run_prompt() {
     for (;;) {
         printf(">>> ");
         if (!fgets(user_input, USER_INPUT_SIZE, stdin)) exit(0);
+		user_input[strlen(user_input)-1] = 0;
         run(user_input);
     }
 }
