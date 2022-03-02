@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "lexer.h"
+
 #define USER_INPUT_SIZE 256
 
 void *xmalloc(size_t n_bytes) {
@@ -13,8 +15,14 @@ void *xmalloc(size_t n_bytes) {
 }
 
 void run(const char *source) {
-    fprintf(stderr, "[!] 'run' not implemented yet.\n");
-    exit(1);
+    Lexer lex;
+    lex.init(source);
+
+    Token *tk = lex.get_next_token();
+    while (tk->type) {
+        printf("%d\n", tk->type);
+        tk = lex.get_next_token();
+    }
 }
 
 void run_file(const char *file_name) {
@@ -25,11 +33,12 @@ void run_file(const char *file_name) {
     }
 
     fseek(fp, 0, SEEK_END);
-    size_t source_len = ftell(fp);
+    size_t len = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    char *source = (char *) xmalloc(source_len + 1);
-    source[source_len] = 0;
+    char *source = (char *) xmalloc(len);
+    fread(source, len, 1, fp);
+    source[len] = 0;
 
     run(source);
 }
