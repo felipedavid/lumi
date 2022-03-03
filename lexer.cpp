@@ -1,27 +1,57 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include "lexer.h"
 
+const char *keyword_and;
+const char *keyword_class;
+const char *keyword_else;
+const char *keyword_false;
+const char *keyword_for;
+const char *keyword_fun;
+const char *keyword_if;
+const char *keyword_nil;
+const char *keyword_or;
+const char *keyword_print;
+const char *keyword_return;
+const char *keyword_super;
+const char *keyword_this;
+const char *keyword_true;
+const char *keyword_var;
+const char *keyword_while;
+
+void init_keywords() {
+    keyword_and = str_intern("and");
+    keyword_class = str_intern("class");
+    keyword_else = str_intern("else");
+    keyword_false = str_intern("false");
+    keyword_for = str_intern("for");
+    keyword_fun = str_intern("fun");
+    keyword_if = str_intern("if");
+    keyword_nil = str_intern("nil");
+    keyword_or = str_intern("or");
+    keyword_print = str_intern("print");
+    keyword_return = str_intern("return");
+    keyword_super = str_intern("super");
+    keyword_this = str_intern("this");
+    keyword_true = str_intern("true");
+    keyword_var = str_intern("var");
+    keyword_while = str_intern("while");
+}
+
 void Token::log() {
-    switch (type) {
-    case TOKEN_NUMBER:
-        printf("TOKEN( type: TOKEN_NUMBER, val: %llu )\n", int_val);
-        break;
-    default:
-        printf("TOKEN( type: %d, val: %.*s )\n", type, end - start, start);
-        break;
-    }
+    printf("TOKEN( type: %d, lexeme: \"%.*s\" )\n", type, end - start, start);
 }
 
 void Lexer::init(const char *source) {
+    init_keywords();
     this->source = source;
 }
 
-
 // If (*source++) == ch, returns type
 // else return ch
-#define match(ch, type) ((Token_Type)(*(++source) == ch ? source++, type : ch))
+#define MATCH(ch, token_type) (curr_tk.type = (Token_Type)(*(++source) == ch ? source++, token_type : ch))
 
 Token *Lexer::get_next_token() {
 LOOP:
@@ -42,7 +72,20 @@ LOOP:
         while (isalnum(*source) || *source == '_') {
             source++;
         }
+        curr_tk.name = str_intern_range(curr_tk.start, source);
         curr_tk.type = TOKEN_IDENT;
+    } break;
+    case '"': {
+        source++;
+        while (*source != '"') {
+            if (*source == 0) {
+                fprintf(stderr, "[!] Parsing error: Unclosed string on line %d\n", line);
+                exit(1);
+            }
+            source++;
+        }
+        source++;
+        curr_tk.type = TOKEN_STRING;
     } break;
     case '/':
         if (*++source == '/') {
@@ -52,10 +95,10 @@ LOOP:
             curr_tk.type = (Token_Type) '/';
         }
         break;
-    case '!': curr_tk.type = match('=', TOKEN_BANG_EQUAL);    break;
-    case '=': curr_tk.type = match('=', TOKEN_EQUAL_EQUAL);   break;
-    case '<': curr_tk.type = match('=', TOKEN_LESS_EQUAL);    break;
-    case '>': curr_tk.type = match('=', TOKEN_GREATER_EQUAL); break;
+    case '!': MATCH('=', TOKEN_BANG_EQUAL);    break;
+    case '=': MATCH('=', TOKEN_EQUAL_EQUAL);   break;
+    case '<': MATCH('=', TOKEN_LESS_EQUAL);    break;
+    case '>': MATCH('=', TOKEN_GREATER_EQUAL); break;
     case ' ': 
     case '\t':
     case '\r':

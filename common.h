@@ -13,8 +13,6 @@ typedef int32_t i32;
 typedef int16_t i16;
 typedef int8_t  i8;
 
-void *xmalloc(size_t n_bytes);
-
 template <class T>
 struct Vector {
     T *ptr = NULL;
@@ -23,6 +21,11 @@ struct Vector {
 
     void push(T val);
     void grow(size_t new_size);
+    T get(int pos);
 };
+
+void *xmalloc(size_t n_bytes);
+const char *str_intern_range(const char *start, const char *end);
+const char *str_intern(const char *str);
 
 #endif

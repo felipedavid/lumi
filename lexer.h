@@ -3,7 +3,9 @@
 enum Token_Type {
     TOKEN_IDENT = 256,
     TOKEN_NUMBER,
+    TOKEN_STRING,
     TOKEN_ERROR,
+
 	TOKEN_BANG_EQUAL,
     TOKEN_EQUAL_EQUAL,
     TOKEN_LESS_EQUAL,
@@ -18,6 +20,7 @@ struct Token {
 
     union {
         u64 int_val;
+        const char *name;
     };
 
     void log();
