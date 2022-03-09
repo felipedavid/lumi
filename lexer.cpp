@@ -63,16 +63,16 @@ LOOP:
             val += *source - '0';
             source++;
         }
-        token.int_val = val;
-        token.type = TOKEN_NUMBER;   
+        token.val.int_val = val;
+        token.type = NUMBER;   
     } break;
     case 'a' ... 'z':
     case 'A' ... 'Z': {
         while (isalnum(*source) || *source == '_') {
             source++;
         }
-        token.name = str_intern_range(token.start, source);
-        token.type = TOKEN_IDENT;
+        token.val.name = str_intern_range(token.start, source);
+        token.type = IDENT;
     } break;
     case '"': {
         source++;
@@ -84,7 +84,7 @@ LOOP:
             source++;
         }
         source++;
-        token.type = TOKEN_STRING;
+        token.type = STRING;
     } break;
     case '/':
         if (*++source == '/') {
@@ -94,10 +94,10 @@ LOOP:
             token.type = (Token_Type) '/';
         }
         break;
-    case '!': MATCH('=', TOKEN_BANG_EQUAL);    break;
-    case '=': MATCH('=', TOKEN_EQUAL_EQUAL);   break;
-    case '<': MATCH('=', TOKEN_LESS_EQUAL);    break;
-    case '>': MATCH('=', TOKEN_GREATER_EQUAL); break;
+    case '!': MATCH('=', BANG_EQUAL);    break;
+    case '=': MATCH('=', EQUAL_EQUAL);   break;
+    case '<': MATCH('=', LESS_EQUAL);    break;
+    case '>': MATCH('=', GREATER_EQUAL); break;
     case ' ': 
     case '\t':
     case '\r':

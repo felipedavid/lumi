@@ -1,7 +1,15 @@
+#ifndef LEXER_H
+#define LEXER_H
+
+#include <stdio.h>
 #include "common.h"
 
 enum Token_Type {
     IDENT = 256,
+    TRUE,
+    FALSE,
+    NIL,
+
     NUMBER,
     STRING,
     ERROR,
@@ -13,7 +21,7 @@ enum Token_Type {
 };
 
 struct Token {
-    Token_Type type = TOKEN_ERROR;   
+    Token_Type type = ERROR;   
 
     const char *start;
     const char *end;
@@ -35,4 +43,6 @@ struct Lexer {
     void init(const char *source);
     Token *eat_token();
     bool is_token(Token_Type tp);
-}
+};
+
+#endif

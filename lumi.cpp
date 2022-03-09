@@ -2,20 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lexer.h"
+#include "parser.h"
 #include "common.h"
 
 #define USER_INPUT_SIZE 256
 
 void run(const char *source) {
-    Lexer lex;
-    lex.init(source);
-
-    Token *tk = lex.get_next_token();
-    while (tk->type) {
-        tk->log();
-        tk = lex.get_next_token();
-    }
+    Parser parser;
+    parser.init(source);
+    parser.parse();
+    parser.print_ast();
 }
 
 void run_file(const char *file_name) {

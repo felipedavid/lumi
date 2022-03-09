@@ -2,6 +2,7 @@
 #define COMMON_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef uint64_t u64;
 typedef uint32_t u32;
@@ -15,7 +16,7 @@ typedef int8_t  i8;
 
 template <class T>
 struct Vector {
-    T *ptr = NULL;
+    T *ptr = 0;
     int len = 0;
     int cap = 0;
 
