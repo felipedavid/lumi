@@ -1,15 +1,15 @@
 #include "common.h"
 
 enum Token_Type {
-    TOKEN_IDENT = 256,
-    TOKEN_NUMBER,
-    TOKEN_STRING,
-    TOKEN_ERROR,
+    IDENT = 256,
+    NUMBER,
+    STRING,
+    ERROR,
 
-	TOKEN_BANG_EQUAL,
-    TOKEN_EQUAL_EQUAL,
-    TOKEN_LESS_EQUAL,
-    TOKEN_GREATER_EQUAL,
+    BANG_EQUAL,
+    EQUAL_EQUAL,
+    LESS_EQUAL,
+    GREATER_EQUAL,
 };
 
 struct Token {
@@ -21,17 +21,18 @@ struct Token {
     union {
         u64 int_val;
         const char *name;
-    };
+    } val;
 
     void log();
 };
 
 struct Lexer {
-    Token curr_tk;
+    Token token;
     const char *source;
 
     int line = 1;
 
     void init(const char *source);
-    Token *get_next_token();
-};
+    Token *eat_token();
+    bool is_token(Token_Type tp);
+}

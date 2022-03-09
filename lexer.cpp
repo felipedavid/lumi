@@ -22,22 +22,22 @@ const char *keyword_var;
 const char *keyword_while;
 
 void init_keywords() {
-    keyword_and = str_intern("and");
-    keyword_class = str_intern("class");
-    keyword_else = str_intern("else");
-    keyword_false = str_intern("false");
-    keyword_for = str_intern("for");
-    keyword_fun = str_intern("fun");
-    keyword_if = str_intern("if");
-    keyword_nil = str_intern("nil");
-    keyword_or = str_intern("or");
-    keyword_print = str_intern("print");
+    keyword_and    = str_intern("and");
+    keyword_class  = str_intern("class");
+    keyword_else   = str_intern("else");
+    keyword_false  = str_intern("false");
+    keyword_for    = str_intern("for");
+    keyword_fun    = str_intern("fun");
+    keyword_if     = str_intern("if");
+    keyword_nil    = str_intern("nil");
+    keyword_or     = str_intern("or");
+    keyword_print  = str_intern("print");
     keyword_return = str_intern("return");
-    keyword_super = str_intern("super");
-    keyword_this = str_intern("this");
-    keyword_true = str_intern("true");
-    keyword_var = str_intern("var");
-    keyword_while = str_intern("while");
+    keyword_super  = str_intern("super");
+    keyword_this   = str_intern("this");
+    keyword_true   = str_intern("true");
+    keyword_var    = str_intern("var");
+    keyword_while  = str_intern("while");
 }
 
 void Token::log() {
@@ -49,13 +49,12 @@ void Lexer::init(const char *source) {
     this->source = source;
 }
 
-// If (*source++) == ch, returns type
-// else return ch
-#define MATCH(ch, token_type) (curr_tk.type = (Token_Type)(*(++source) == ch ? source++, token_type : ch))
+#define MATCH(ch, token_type) \
+        (token.type = (Token_Type)(*++source == ch ? source++, token_type : *(source-1)))
 
-Token *Lexer::get_next_token() {
+Token *Lexer::eat_token() {
 LOOP:
-    curr_tk.start = source;
+    token.start = source;
     switch (*source) {
     case '0' ... '9': {
         u64 val = 0;
@@ -64,16 +63,16 @@ LOOP:
             val += *source - '0';
             source++;
         }
-        curr_tk.int_val = val;
-        curr_tk.type = TOKEN_NUMBER;   
+        token.int_val = val;
+        token.type = TOKEN_NUMBER;   
     } break;
     case 'a' ... 'z':
     case 'A' ... 'Z': {
         while (isalnum(*source) || *source == '_') {
             source++;
         }
-        curr_tk.name = str_intern_range(curr_tk.start, source);
-        curr_tk.type = TOKEN_IDENT;
+        token.name = str_intern_range(token.start, source);
+        token.type = TOKEN_IDENT;
     } break;
     case '"': {
         source++;
@@ -85,14 +84,14 @@ LOOP:
             source++;
         }
         source++;
-        curr_tk.type = TOKEN_STRING;
+        token.type = TOKEN_STRING;
     } break;
     case '/':
         if (*++source == '/') {
             while (*source && *source != '\n') source++;
             goto LOOP;
         } else {
-            curr_tk.type = (Token_Type) '/';
+            token.type = (Token_Type) '/';
         }
         break;
     case '!': MATCH('=', TOKEN_BANG_EQUAL);    break;
@@ -110,10 +109,14 @@ LOOP:
         goto LOOP;
         break;
     default:
-        curr_tk.type = (Token_Type) *source++;
+        token.type = (Token_Type) *source++;
         break;
     }
-    curr_tk.end = source;
+    token.end = source;
 
-    return &curr_tk;
+    return &token;
+}
+
+inline bool Lexer::is_token(Token_Type tp) {
+    return tp == token.type;
 }

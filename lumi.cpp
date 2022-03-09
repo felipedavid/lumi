@@ -42,7 +42,7 @@ void run_prompt() {
     for (;;) {
         printf(">>> ");
         if (!fgets(user_input, USER_INPUT_SIZE, stdin)) exit(0);
-		user_input[strlen(user_input)-1] = 0;
+        user_input[strlen(user_input)-1] = 0;
         run(user_input);
     }
 }
