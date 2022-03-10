@@ -103,6 +103,17 @@ Expr *Parser::parse() {
     return expression();
 }
 
-void Parser::print_expr(Expr *expr) {
-    printf("Hello there.\n");
+void Parser::print_ast(Expr *root) {
+    switch (root->type) {
+    case BINARY_EXPR:
+        printf("(%c ", root->bin.op);
+        print_ast(root->bin.left);
+        printf(" ");
+        print_ast(root->bin.right);
+        printf(") ");
+        break;
+    case LITERAL_EXPR:
+        printf("%d", root->number);
+        break;
+    }
 }

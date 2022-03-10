@@ -41,6 +41,6 @@ struct Parser {
     Expr *unary();
     Expr *primary();
     Expr *parse();
-    void print_expr(Expr *expr);
+    void print_ast(Expr *root);
 };
 #endif

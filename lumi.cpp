@@ -3,15 +3,18 @@
 #include <string.h>
 
 #include "parser.h"
+#include "interpreter.h"
 #include "common.h"
 
 #define USER_INPUT_SIZE 256
 
 void run(const char *source) {
+    Interpreter intp;
     Parser parser;
     parser.init(source);
     Expr *expr = parser.parse();
-    parser.print_expr(expr);
+    u64 result = intp.evaluate(expr);
+    printf("%d\n", result);
 }
 
 void run_file(const char *file_name) {
