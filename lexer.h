@@ -35,7 +35,7 @@ struct Token {
 };
 
 struct Lexer {
-    Token token;
+    Token token, prev_token;
     const char *source;
 
     int line = 1;
@@ -43,6 +43,7 @@ struct Lexer {
     void init(const char *source);
     Token *eat_token();
     bool is_token(Token_Type tp);
+    bool match(Token_Type tp);
 };
 
 #endif

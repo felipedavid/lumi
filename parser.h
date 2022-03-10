@@ -23,7 +23,8 @@ struct Expr {
             Expr *right;
         } bin;
         Expr *group;
-        u64 literal;
+        u64 number;
+        const char *name;
     };
 };
 
@@ -40,6 +41,6 @@ struct Parser {
     Expr *unary();
     Expr *primary();
     Expr *parse();
-    void print_ast();
+    void print_expr(Expr *expr);
 };
 #endif

@@ -117,6 +117,15 @@ LOOP:
     return &token;
 }
 
-inline bool Lexer::is_token(Token_Type tp) {
+bool Lexer::is_token(Token_Type tp) {
     return tp == token.type;
+}
+
+bool Lexer::match(Token_Type tp) {
+    if (tp == token.type) {
+        prev_token = token;
+        eat_token();
+        return true;
+    }
+    return false;
 }

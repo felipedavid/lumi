@@ -10,8 +10,8 @@
 void run(const char *source) {
     Parser parser;
     parser.init(source);
-    parser.parse();
-    parser.print_ast();
+    Expr *expr = parser.parse();
+    parser.print_expr(expr);
 }
 
 void run_file(const char *file_name) {

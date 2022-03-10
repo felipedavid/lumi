@@ -4,6 +4,7 @@
 
 void Parser::init(const char *source) {
     lex.init(source);
+    lex.eat_token();
 }
 
 Expr *Parser::alloc_expr(Expr expr) {
@@ -19,9 +20,8 @@ Expr *Parser::expression() {
 Expr *Parser::equality() {
     Expr *expr = comparison();
 
-    while (lex.is_token(EQUAL_EQUAL) || lex.is_token(BANG_EQUAL)) {
-        Token_Type op = lex.token.type;
-        lex.eat_token();
+    while (lex.match(EQUAL_EQUAL) || lex.match(BANG_EQUAL)) {
+        Token_Type op = lex.prev_token.type;
         Expr *right = comparison();
         expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
     }
@@ -32,10 +32,9 @@ Expr *Parser::equality() {
 Expr *Parser::comparison() {
     Expr *expr = term();
 
-    while (lex.is_token((Token_Type)'>') || lex.is_token((Token_Type)'<') || 
-           lex.is_token(GREATER_EQUAL) || lex.is_token(LESS_EQUAL)) {
-        Token_Type op = lex.token.type;
-        lex.eat_token();
+    while (lex.match((Token_Type)'>') || lex.match((Token_Type)'<') || 
+           lex.match(GREATER_EQUAL) || lex.match(LESS_EQUAL)) {
+        Token_Type op = lex.prev_token.type;
         Expr *right = term();
         expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
     }
@@ -46,9 +45,8 @@ Expr *Parser::comparison() {
 Expr *Parser::term() {
     Expr *expr = factor();
 
-    while (lex.is_token((Token_Type)'+') || lex.is_token((Token_Type)'-')) {
-        Token_Type op = lex.token.type;
-        lex.eat_token();
+    while (lex.match((Token_Type)'+') || lex.match((Token_Type)'-')) {
+        Token_Type op = lex.prev_token.type;
         Expr *right = factor();
         expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
     }
@@ -59,9 +57,8 @@ Expr *Parser::term() {
 Expr *Parser::factor() {
     Expr *expr = unary();
 
-    while (lex.is_token((Token_Type)'*') || lex.is_token((Token_Type)'/')) {
-        Token_Type op = lex.token.type;
-        lex.eat_token();
+    while (lex.match((Token_Type)'*') || lex.match((Token_Type)'/')) {
+        Token_Type op = lex.prev_token.type;
         Expr *right = unary();
         expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
     }
@@ -70,8 +67,8 @@ Expr *Parser::factor() {
 }
 
 Expr *Parser::unary() {
-    if (lex.is_token((Token_Type)'!') || lex.is_token((Token_Type)'-')) {
-        Token_Type op = lex.token.type;
+    if (lex.match((Token_Type)'!') || lex.match((Token_Type)'-')) {
+        Token_Type op = lex.prev_token.type;
         Expr *right = unary();
         return alloc_expr(Expr{UNARY_EXPR, {op, right}});
     }
@@ -80,17 +77,17 @@ Expr *Parser::unary() {
 }
 
 Expr *Parser::primary() {
-    if (lex.is_token(FALSE)) return alloc_expr(Expr{LITERAL_EXPR, .literal = false});
-    if (lex.is_token(TRUE))  return alloc_expr(Expr{LITERAL_EXPR, .literal = true});
-    if (lex.is_token(NIL))   return alloc_expr(Expr{LITERAL_EXPR, .literal = 0});
+    if (lex.match(FALSE)) return alloc_expr(Expr{LITERAL_EXPR, .number = false});
+    if (lex.match(TRUE))  return alloc_expr(Expr{LITERAL_EXPR, .number = true});
+    if (lex.match(NIL))   return alloc_expr(Expr{LITERAL_EXPR, .number = 0});
+    if (lex.match(NUMBER))
+        return alloc_expr(Expr{LITERAL_EXPR, .number = lex.token.val.int_val});
+    if (lex.match(STRING))
+        return alloc_expr(Expr{LITERAL_EXPR, .name = lex.token.val.name});
 
-    if (lex.is_token(NUMBER) || lex.is_token(STRING)) {
-        return alloc_expr(Expr{LITERAL_EXPR, .literal = 0});
-    }
-
-    if (lex.is_token((Token_Type)'(')) {
+    if (lex.match((Token_Type)'(')) {
         Expr *expr = expression();
-        if (!lex.is_token((Token_Type)')')) {
+        if (!lex.match((Token_Type)')')) {
             printf("Expect ')' after expression.");
             exit(1);
         }
@@ -106,6 +103,6 @@ Expr *Parser::parse() {
     return expression();
 }
 
-void Parser::print_ast() {
+void Parser::print_expr(Expr *expr) {
     printf("Hello there.\n");
 }
