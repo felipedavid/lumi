@@ -9,12 +9,16 @@
 #define USER_INPUT_SIZE 256
 
 void run(const char *source) {
-    Interpreter intp;
+    Interpreter interpreter;
     Parser parser;
+
     parser.init(source);
-    Expr *expr = parser.parse();
-    u64 result = intp.evaluate(expr);
-    printf("%d\n", result);
+
+    Stmt *stmt = parser.parse();
+    while (stmt != NULL) {
+        interpreter.interpret(stmt);
+        stmt = parser.parse();
+    }
 }
 
 void run_file(const char *file_name) {

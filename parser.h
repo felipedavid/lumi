@@ -28,19 +28,35 @@ struct Expr {
     };
 };
 
+enum Stmt_Type {
+    STMT_EXPR,
+    STMT_PRINT,
+};
+
+struct Stmt {
+    Stmt_Type type;
+    union {
+        Expr *expr;
+    };
+};
+
 struct Parser {
     Lexer lex;
 
     void init(const char *source);
     Expr *alloc_expr(Expr expr);
-    Expr *expression();
-    Expr *equality();
-    Expr *comparison();
-    Expr *term();
-    Expr *factor();
-    Expr *unary();
-    Expr *primary();
-    Expr *parse();
+    Stmt *alloc_stmt(Stmt stmt);
+    Expr *parse_expr();
+    Expr *parse_expr_equality();
+    Expr *parse_expr_comparison();
+    Expr *parse_expr_term();
+    Expr *parse_expr_factor();
+    Expr *parse_expr_unary();
+    Expr *parse_expr_primary();
+    Stmt *parse_stmt_print();
+    Stmt *parse_stmt_expr();
+    Stmt *parse_stmt();
+    Stmt *parse();
     void print_ast(Expr *root);
 };
 #endif

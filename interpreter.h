@@ -2,5 +2,8 @@
 #include "common.h"
 
 struct Interpreter {
-    u64 evaluate(Expr *root);
+    bool had_error = false;
+
+    void interpret(Stmt *root);
+    u64 evaluate(Expr *expr);
 };

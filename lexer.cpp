@@ -4,40 +4,40 @@
 
 #include "lexer.h"
 
-const char *keyword_and;
-const char *keyword_class;
-const char *keyword_else;
-const char *keyword_false;
-const char *keyword_for;
-const char *keyword_fun;
-const char *keyword_if;
-const char *keyword_nil;
-const char *keyword_or;
-const char *keyword_print;
-const char *keyword_return;
-const char *keyword_super;
-const char *keyword_this;
-const char *keyword_true;
-const char *keyword_var;
-const char *keyword_while;
+const char *and_keyword;
+const char *class_keyword;
+const char *else_keyword;
+const char *false_keyword;
+const char *for_keyword;
+const char *fun_keyword;
+const char *if_keyword;
+const char *nil_keyword;
+const char *or_keyword;
+const char *print_keyword;
+const char *return_keyword;
+const char *super_keyword;
+const char *this_keyword;
+const char *true_keyword;
+const char *var_keyword;
+const char *while_keyword;
 
 void init_keywords() {
-    keyword_and    = str_intern("and");
-    keyword_class  = str_intern("class");
-    keyword_else   = str_intern("else");
-    keyword_false  = str_intern("false");
-    keyword_for    = str_intern("for");
-    keyword_fun    = str_intern("fun");
-    keyword_if     = str_intern("if");
-    keyword_nil    = str_intern("nil");
-    keyword_or     = str_intern("or");
-    keyword_print  = str_intern("print");
-    keyword_return = str_intern("return");
-    keyword_super  = str_intern("super");
-    keyword_this   = str_intern("this");
-    keyword_true   = str_intern("true");
-    keyword_var    = str_intern("var");
-    keyword_while  = str_intern("while");
+    and_keyword    = str_intern("and");
+    class_keyword  = str_intern("class");
+    else_keyword   = str_intern("else");
+    false_keyword  = str_intern("false");
+    for_keyword    = str_intern("for");
+    fun_keyword    = str_intern("fun");
+    if_keyword     = str_intern("if");
+    nil_keyword    = str_intern("nil");
+    or_keyword     = str_intern("or");
+    print_keyword  = str_intern("print");
+    return_keyword = str_intern("return");
+    super_keyword  = str_intern("super");
+    this_keyword   = str_intern("this");
+    true_keyword   = str_intern("true");
+    var_keyword    = str_intern("var");
+    while_keyword  = str_intern("while");
 }
 
 void Token::log() {
@@ -124,6 +124,18 @@ bool Lexer::is_token(Token_Type tp) {
 bool Lexer::match(Token_Type tp) {
     if (tp == token.type) {
         prev_token = token;
+        eat_token();
+        return true;
+    }
+    return false;
+}
+
+bool Lexer::is_keyword(const char *keyword) {
+    return token.val.name == keyword;
+}
+
+bool Lexer::match_keyword(const char *keyword) {
+    if (is_keyword(keyword)) {
         eat_token();
         return true;
     }

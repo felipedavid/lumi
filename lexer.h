@@ -6,6 +6,7 @@
 
 enum Token_Type {
     IDENT = 256,
+    KEYWORD,
     TRUE,
     FALSE,
     NIL,
@@ -44,6 +45,8 @@ struct Lexer {
     Token *eat_token();
     bool is_token(Token_Type tp);
     bool match(Token_Type tp);
+    bool is_keyword(const char *keyword);
+    bool match_keyword(const char *keyword);
 };
 
 #endif
