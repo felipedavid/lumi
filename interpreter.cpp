@@ -8,6 +8,7 @@ void Interpreter::interpret(Stmt *root) {
     case STMT_PRINT:
         printf("%d\n", evaluate(root->expr));
         break;
+    case STMT_NONE: break;
     }
 }
 

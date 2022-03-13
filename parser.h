@@ -29,6 +29,7 @@ struct Expr {
 };
 
 enum Stmt_Type {
+    STMT_NONE,
     STMT_EXPR,
     STMT_PRINT,
 };

@@ -109,11 +109,19 @@ Expr *Parser::parse_expr_primary() {
 
 Stmt *Parser::parse_stmt_print() {
     Expr *val = parse_expr();
+    if (!lex.match((Token_Type)';')) {
+        fprintf(stderr, "Expected ';' after value.\n");
+        return alloc_stmt(Stmt{STMT_NONE});
+    }
     return alloc_stmt(Stmt{STMT_PRINT, val});
 }
 
 Stmt *Parser::parse_stmt_expr() {
     Expr *expr = parse_expr();
+    if (!lex.match((Token_Type)';')) {
+        fprintf(stderr, "Expected ';' after expression.\n");
+        return alloc_stmt(Stmt{STMT_NONE});
+    }
     return alloc_stmt(Stmt{STMT_EXPR, expr});
 }
 
