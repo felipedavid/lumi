@@ -1,78 +1,51 @@
+#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "common.h"
 
-#define MAX(x, y) ((x > y) ? x : y)
-
 void *xmalloc(size_t n_bytes) {
     void *ptr = malloc(n_bytes);
-    if (!ptr) {
+    if (ptr == NULL) {
         fprintf(stderr, "[!] xmalloc failed\n");
         exit(1);
     }
     return ptr;
 }
 
-void *xrealloc(void *ptr, size_t n_bytes) {
-    ptr = realloc(ptr, n_bytes);
-    if (!ptr) {
-        fprintf(stderr, "[!] xrealloc failed\n");
-        exit(1);
-    }
-    return ptr;
+// Dynamic Arrays
+template <typename T>
+void Vector::push(T val) {
+     
 }
 
-template <class T>
-void Vector<T>::grow(size_t new_size) {
-    size_t new_cap = MAX(new_size, cap*2+1);
-    size_t n_bytes = new_cap * sizeof(T);
-
-    if (ptr) {
-        ptr = (T*) xrealloc(ptr, n_bytes);
-    } else {
-        ptr = (T*) malloc(n_bytes);
-        len = 0;
-    }
-    cap = new_cap;
+template <typename T>
+T Vector::get(int index) {
+    return arr[index];
 }
 
-template <class T>
-void Vector<T>::push(T val) {
-    if (len+1 > cap) grow(len+1);
-    ptr[len++] = val;
-}
-
-template <class T>
-T Vector<T>::get(int pos) {
-    return ptr[pos];
-}
+// String interning
 
 struct Intern_Str {
     const char *str;
     size_t len;
 };
+Intern_Str *interned_strs;
+Vector<Intern_Str> interned_strs;
 
-Vector<Intern_Str> interns;
-
-// TODO: Reimplement with a hashtable
-const char *str_intern_range(const char *start, const char *end) {
-    size_t len = (size_t) (end - start);
-    for (int i = 0; i < interns.len; i++) {
-        if (interns.get(i).len == len && !strncmp(start, interns.get(i).str, len)) {
-            return interns.get(i).str;
+const char *intern_str_range(const char *start, const char *end) {
+    size_t len = end - start;
+    Intern_Str i_str;
+    for (int i = 0; i < interned_strs.len(); i++) {
+        i_str = internd_strs.get(i);
+        if (i_str.len == len && !strncmp(start, i_str.str, len)) {
+            return i_str.str;
         }
     }
 
-    char *str = (char *) xmalloc(len+1);
-    memcpy(str, start, len);
-    str[len] = 0;
+    char *new_str = xmalloc(len + 1);
+    memcpy(new_str, start, len);
+    new_str[len] = 0;
+    interned_strs.push(Intern_Str{new_str, len});
 
-    interns.push(Intern_Str{str, len});
-
-    return str;
-}
-
-const char *str_intern(const char *str) {
-    return str_intern_range(str, str + strlen(str));
+    return new_str;
 }

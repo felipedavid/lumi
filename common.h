@@ -1,32 +1,12 @@
-#ifndef COMMON_H
-#define COMMON_H
 
-#include <stdint.h>
-#include <stdlib.h>
-
-typedef uint64_t u64;
-typedef uint32_t u32;
-typedef uint16_t u16;
-typedef uint8_t  u8;
-
-typedef int64_t i64;
-typedef int32_t i32;
-typedef int16_t i16;
-typedef int8_t  i8;
-
-template <class T>
+template <typename T>
 struct Vector {
-    T *ptr = 0;
-    int len = 0;
-    int cap = 0;
+    T *arr = NULL;
+    size_t len = 0;
+    size_t cap = 0;
 
     void push(T val);
-    void grow(size_t new_size);
-    T get(int pos);
+    T get(int index);
 };
 
 void *xmalloc(size_t n_bytes);
-const char *str_intern_range(const char *start, const char *end);
-const char *str_intern(const char *str);
-
-#endif
