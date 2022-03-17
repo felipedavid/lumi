@@ -2,57 +2,63 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "parser.h"
+#include "interpreter.h"
 #include "common.h"
-#include "lexer.h"
+
+#define USER_INPUT_SIZE 256
 
 void run(const char *source) {
-    Lexer lex;
-    lex.init(source);
+    Interpreter interpreter;
+    Parser parser;
 
-    Token *tk = lex.next_token();
-    while(tk->type) {
-        lex.log_current_token();
-        tk = lex.next_token();
+    parser.init(source);
+
+    Stmt *stmt = parser.parse();
+    while (stmt != NULL) {
+        interpreter.interpret(stmt);
+        stmt = parser.parse();
     }
 }
 
 void run_file(const char *file_name) {
-    FILE *f = fopen(file_name, "r");
-    if (f == NULL) {
-        fprintf(stderr, "[!] Cannot open file '%s'\n", file_name);
-        exit(1);
+    FILE *fp = fopen(file_name, "r");
+    if (!fp) {
+        fprintf(stderr, "[!] Failed while trying to open file '%s'\n", file_name);
+        exit(72);
     }
 
-    fseek(f, 0, SEEK_END);
-    size_t file_len = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    fseek(fp, 0, SEEK_END);
+    size_t len = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
 
-    char *source = (char *) xmalloc(file_len + 1);
-    fread(source, file_len, 1, f);
-    source[file_len] = '\0';
+    char *source = (char *) xmalloc(len);
+    fread(source, len, 1, fp);
+    source[len] = 0;
 
     run(source);
 }
 
 void run_prompt() {
-    char buf[256];
+    static char user_input[USER_INPUT_SIZE];
 
     for (;;) {
         printf(">>> ");
-        if (fgets(buf, sizeof(buf), stdin) == NULL) 
-            break;
-        buf[strlen(buf)-1] = '\0';
-        run(buf);
-        printf("\n");
+        if (!fgets(user_input, USER_INPUT_SIZE, stdin)) exit(0);
+        user_input[strlen(user_input)-1] = 0;
+        run(user_input);
     }
 }
 
 int main(int argc, char **argv) {
-    if (argc == 1) {
-        run_prompt();
+    if (argc > 2) {
+        printf("Usage: lumi <script>\n");
+        return 64;
     } else if (argc == 2) {
         run_file(argv[1]);
     } else {
-        printf("Usage: %s <script.lumi>\n", argv[0]);
+        run_prompt();
     }
+
+    return 0;
 }
