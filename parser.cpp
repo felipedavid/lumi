@@ -31,7 +31,7 @@ Expr *Parser::parse_expr_equality() {
     while (lex.match(EQUAL_EQUAL) || lex.match(BANG_EQUAL)) {
         Token_Type op = lex.prev_token.type;
         Expr *right = parse_expr_comparison();
-        expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
+        expr = alloc_expr(Expr{BINARY_EXPR, {op, expr, right}});
     }
 
     return expr;
@@ -44,7 +44,7 @@ Expr *Parser::parse_expr_comparison() {
            lex.match(GREATER_EQUAL) || lex.match(LESS_EQUAL)) {
         Token_Type op = lex.prev_token.type;
         Expr *right = parse_expr_term();
-        expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
+        expr = alloc_expr(Expr{BINARY_EXPR, {op, expr, right}});
     }
 
     return expr;
@@ -56,7 +56,7 @@ Expr *Parser::parse_expr_term() {
     while (lex.match((Token_Type)'+') || lex.match((Token_Type)'-')) {
         Token_Type op = lex.prev_token.type;
         Expr *right = parse_expr_factor();
-        expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
+        expr = alloc_expr(Expr{BINARY_EXPR, {op, expr, right}});
     }
 
     return expr;
@@ -68,7 +68,7 @@ Expr *Parser::parse_expr_factor() {
     while (lex.match((Token_Type)'*') || lex.match((Token_Type)'/')) {
         Token_Type op = lex.prev_token.type;
         Expr *right = parse_expr_unary();
-        expr = alloc_expr(Expr{BINARY_EXPR, .bin = {op, expr, right}});
+        expr = alloc_expr(Expr{BINARY_EXPR, {op, expr, right}});
     }
 
     return expr;

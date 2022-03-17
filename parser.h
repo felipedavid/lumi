@@ -15,13 +15,13 @@ struct Expr {
     union {
         struct {
             Token_Type op;
-            Expr *expr;
-        } unary;
-        struct {
-            Token_Type op;
             Expr *left;
             Expr *right;
         } bin;
+        struct {
+            Token_Type op;
+            Expr *expr;
+        } unary;
         Expr *group;
         u64 number;
         const char *name;
