@@ -1,2 +1,2 @@
 #!/bin/sh
-gcc *.cpp -o lumi && clear && ./lumi
+gcc *.cpp -o lumi -g && clear && ./lumi

@@ -10,3 +10,5 @@ struct Vector {
 };
 
 void *xmalloc(size_t n_bytes);
+void *xrealloc(void *ptr, size_t n_bytes);
+const char *intern_str_range(const char *start, const char *end);

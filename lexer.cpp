@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#include "common.h"
 #include "lexer.h"
 
 void Lexer::init(const char *source) {
@@ -26,7 +27,7 @@ Token *Lexer::next_token() {
             source++;
         }
         token.type = TOKEN_NAME;
-        token.str = intern_str_range(token.start, token.end);
+        token.str = intern_str_range(token.start, source);
     } break;
     default:
         token.type = (Token_Type) *source++;
