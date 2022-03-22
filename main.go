@@ -45,8 +45,7 @@ func runFile(sourcePath string) {
 }
 
 func run(src string) {
-    var scanner Scanner
-    scanner.init(src)
+    scanner := NewScanner(src)
 
     tokens := scanner.scanTokens()
     for t := range tokens {
@@ -54,11 +53,11 @@ func run(src string) {
     }
 }
 
-func erro(line int, message int) {
-    report(line, "", message)
+func erro(line int, message string) {
+    reportError(line, "", message)
 }
 
 func reportError(line int, where string, message string) {
-    fmt.Fprintf("[line %v] Error%v: %v\n", line, where, message)
+    fmt.Fprintf(os.Stderr, "[line %v] Error%v: %v\n", line, where, message)
     hadError = true
 }
