@@ -14,10 +14,11 @@ void chunk_disassemble(Chunk *chunk, const char *name) {
 
 int disassemble_instruction(Chunk *chunk, int offset) {
     printf("%04d ", offset);
-    if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+    if (offset > 0 && 
+        chunk_get_line(chunk, offset) == chunk_get_line(chunk, offset - 1)) {
         printf("   | ");
     } else {
-        printf("%4d ", chunk->lines[offset]);
+        printf("%4d ", chunk_get_line(chunk, offset));
     }
 
     u8 instruction = chunk->code[offset];

@@ -13,6 +13,10 @@ void chunk_test() {
     chunk_push_code(&chunk, constant, 123);
 
     chunk_push_code(&chunk, OP_RETURN, 123);
+    chunk_push_code(&chunk, OP_RETURN, 23);
+    chunk_push_code(&chunk, OP_RETURN, 24);
+    chunk_push_code(&chunk, OP_RETURN, 23);
+    chunk_push_code(&chunk, OP_RETURN, 23);
 
     chunk_disassemble(&chunk, "test chunk");
 

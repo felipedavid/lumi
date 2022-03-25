@@ -10,7 +10,12 @@ typedef enum {
 } OpCode;
 
 typedef struct {
-    int *lines;
+    int count;
+    int line;
+} Line;
+
+typedef struct {
+    Line *lines;
     u8 *code;
     Value *constants;
 } Chunk;
@@ -19,5 +24,6 @@ void chunk_init(Chunk *chunk);
 void chunk_push_code(Chunk *chunk, u8 opc, int line);
 int chunk_push_constant(Chunk *chunk, Value constant);
 void chunk_free(Chunk *chunk);
+int chunk_get_line(Chunk *chunk, int index);
 
 #endif
