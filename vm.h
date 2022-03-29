@@ -1,14 +1,10 @@
-#ifndef VM_H
+#ifndef VM_H 
 #define VM_H
 
-#include "chunk.h"
+#include "chunk.h" 
+#include "value.h"
 
-typedef struct {
-    Chunk *chunk;
-    u8 *ip;
-    Value *stack;
-    Value *stack_top;
-} VM;
+typedef struct { Chunk *chunk; u8 *ip; Value *stack; int stack_top; } VM;
 
 typedef enum {
     INTERPRET_OK,
@@ -20,5 +16,8 @@ void vm_init();
 void vm_free();
 Interpret_Result vm_run();
 Interpret_Result vm_interpret(Chunk *chunk);
+void vm_stack_reset();
+void vm_push(Value value);
+Value vm_pop();
 
 #endif

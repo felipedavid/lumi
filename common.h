@@ -25,10 +25,11 @@ typedef struct {
 #define buf_cap(b) ((b) ? buf__hdr(b)->cap : 0)
 
 #define buf_push(b, n) (buf__fit(b, 1), b[buf__hdr(b)->len++] = n)
+#define buf_pop(b) ((b)[--buf__hdr(b)->len])
 #define buf_free(b) ((b) ? free(buf__hdr(b)), (b) = NULL : 0 )
 
 void *xmalloc(size_t n_bytes);
-void *realloc(void *ptr, size_t n_bytes);
+void *xrealloc(void *ptr, size_t n_bytes);
 void *buf__grow(void *buf, size_t min_cap, size_t elmen_size);
 void buf_test();
 
