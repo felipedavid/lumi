@@ -1,5 +1,5 @@
 #ifndef CHUNK_H
-#define CHUNK_K
+#define CHUNK_H
 
 #include "common.h"
 #include "value.h"

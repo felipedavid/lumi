@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define DEBUG_TESTS
+#define DEBUG_TRACE
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 typedef uint8_t u8;
