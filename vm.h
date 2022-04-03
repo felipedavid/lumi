@@ -4,7 +4,12 @@
 #include "chunk.h" 
 #include "value.h"
 
-typedef struct { Chunk *chunk; u8 *ip; Value *stack; int stack_top; } VM;
+typedef struct { 
+    Chunk *chunk; 
+    u8 *ip; 
+    Value *stack; 
+    int stack_top; 
+} VM;
 
 typedef enum {
     INTERPRET_OK,

@@ -6,9 +6,9 @@
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
+#include "lexer.h"
 
 Interpret_Result run(const char *source) {
-    printf(source);
     return INTERPRET_OK;
 }
 
@@ -61,6 +61,7 @@ void run_prompt() {
 int main(int argc, char **argv) {
 #ifdef DEBUG_TESTS
     buf_test();
+    lex_test();
 #endif
     vm_init();
 

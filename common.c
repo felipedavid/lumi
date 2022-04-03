@@ -26,16 +26,16 @@ void *buf__grow(void *buf, size_t min_cap, size_t elmen_size) {
     size_t new_cap = MAX(min_cap, buf_cap(buf)*2+1);
     size_t new_size = offsetof(Buf_Hdr, val) + (new_cap * elmen_size);
 
-    Buf_Hdr *new_buf;
+    Buf_Hdr *new_hdr;
     if (buf) {
-        new_buf = xrealloc(buf__hdr(buf), new_size);
+        new_hdr = xrealloc(buf__hdr(buf), new_size);
     } else {
-        new_buf = xmalloc(new_size);
-        new_buf->len = 0;
+        new_hdr = xmalloc(new_size);
+        new_hdr->len = 0;
     }
-    new_buf->cap = new_cap;
+    new_hdr->cap = new_cap;
 
-    return new_buf->val;
+    return new_hdr->val;
 }
 
 void buf_test() {
