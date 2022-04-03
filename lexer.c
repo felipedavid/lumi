@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "lexer.h"
 
@@ -80,6 +81,17 @@ void lex_init(const char *source) {
 }
 
 void lex_test() {
-    const char *source = "\"uehue\" 4+2 \"haha \" 12";
-    tokens_print(source);
+#define TEST_TYPE(t) token_next(); assert(token.type == (t))
+    const char *source = "+(32)\n\n\"hello\n\"*5";
+    lex_init(source);
+
+    TEST_TYPE('+');
+    TEST_TYPE('(');
+    TEST_TYPE(TOKEN_NUMBER);
+    TEST_TYPE(')');
+    TEST_TYPE(TOKEN_STRING);
+    TEST_TYPE('*');
+    TEST_TYPE(TOKEN_NUMBER);
+    assert(token.line = 4);
+#undef TEST_TYPE
 }
