@@ -62,6 +62,7 @@ void run_prompt() {
 int main(int argc, char **argv) {
 #ifdef DEBUG_TESTS
     buf_test();
+    str_intern_test();
     lex_test();
 #endif
     vm_init();

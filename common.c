@@ -90,3 +90,15 @@ const char *str_intern_range(const char *start, const char *end) {
 const char *str_intern(const char *str) {
     return str_intern_range(str, (str + strlen(str)));
 }
+
+void str_intern_test() {
+    char a[] = "Hello World!";
+    char b[] = "Hello World!";
+    const char *pa = str_intern(a);
+    const char *pb = str_intern(b);
+    assert(pa == pb);
+
+    char c[] = "Hello World";
+    const char *pc = str_intern(c);
+    assert(pb != pc);
+}
