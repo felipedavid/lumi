@@ -9,6 +9,7 @@
 #include "lexer.h"
 
 Interpret_Result run(const char *source) {
+    tokens_print(source);
     return INTERPRET_OK;
 }
 

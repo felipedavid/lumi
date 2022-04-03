@@ -1,7 +1,9 @@
 #include "common.h"
 
 typedef enum {
-    TP_NUMBER = 128,
+    TOKEN_NUMBER = 128,
+    TOKEN_IDENTIFIER,
+    TOKEN_STRING,
 } Token_Type;
 
 typedef struct {
@@ -11,9 +13,11 @@ typedef struct {
     int line;
     union {
         u64 val;
+        const char *name;
     };
 } Token;
 
 void token_next();
+void tokens_print();
 void lex_init(const char *source);
 void lex_test();

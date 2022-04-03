@@ -7,6 +7,7 @@ Token token;
 char *stream;
 
 void token_next() {
+START_OVER:
     token.start = stream;
     switch (*stream) {
     case '0' ... '9': {
@@ -17,8 +18,24 @@ void token_next() {
             stream++;
         }
         token.val = val;
-        token.type = TP_NUMBER;
+        token.type = TOKEN_NUMBER;
     } break;
+    case 'A' ... 'Z': 
+    case 'a' ... 'z': {
+        while (isalnum(*stream) || *stream == '_') {
+            stream++;
+        }
+        token.type = TOKEN_IDENTIFIER;
+        token.name = str_intern_range(token.start, stream);
+    } break;
+    case '"': {
+        while (*++stream != '"');
+        stream++;
+        token.type = TOKEN_STRING;
+    } break;
+    case ' ': case '\t': case '\r': case '\n':
+        while (isspace(*++stream));
+        goto START_OVER;
     default: {
         token.type = *stream++;
     }
@@ -27,15 +44,33 @@ void token_next() {
 }
 
 void token_print() {
-    printf("[TOKEN] ");
     switch (token.type) {
-    case TP_NUMBER: 
-        printf("[lexeme: \"%.*s\"] [val: %d]\n", 
-            (int)(token.end - token.start), token.start, token.val);
+    case TOKEN_NUMBER: 
+        printf("[line: %d] [type: TOKEN_NUMBER] [lexeme: \"%.*s\"] [val: %d]\n", 
+            token.line, (int)(token.end - token.start), token.start, token.val);
+        break;
+    case TOKEN_IDENTIFIER:
+        printf("[line: %d] [type: TOKEN_IDENTIFIER] [lexeme: \"%.*s\"]\n", 
+            token.line, (int)(token.end - token.start), token.start);
+        break;
+    case TOKEN_STRING:
+        printf("[line: %d] [type: TOKEN_STRING] [lexeme: \"%.*s\"]\n", 
+            token.line, (int)(token.end - token.start), token.start);
         break;
     default:
-        printf("[lexeme: \"%.*s\"]\n", 
-            (int)(token.end - token.start), token.start);
+        printf("[line: %d] [lexeme: \"%.*s\"]\n", 
+            token.line, (int)(token.end - token.start), token.start);
+    }
+}
+
+void tokens_print(const char *source) {
+    lex_init(source);
+    printf("[Source: %s]\n\n", source);
+    printf("[TOKENS]\n");
+    token_next();
+    while (token.type) {
+        token_print();
+        token_next();
     }
 }
 
@@ -45,10 +80,6 @@ void lex_init(const char *source) {
 }
 
 void lex_test() {
-    lex_init("+()1234+904");
-    token_next();
-    while (token.type) {
-        token_print();
-        token_next();
-    }
+    const char *source = "\"uehue\" 4+2 \"haha \" 12";
+    tokens_print(source);
 }
