@@ -2,6 +2,7 @@
 
 #include "vm.h"
 #include "debug.h"
+#include "compiler.h"
 
 VM vm;
 
@@ -50,7 +51,7 @@ Interpret_Result vm_run() {
         case OP_RET: {
             value_print(vm_pop());
             printf("\n");
-            return INTERPRET_OK;
+            return OK;
         } break;
         }
     }
@@ -58,9 +59,19 @@ Interpret_Result vm_run() {
 #undef BINARY_OP
 }
 
-Interpret_Result vm_interpret(Chunk *chunk) {
-    vm.chunk = chunk;
-    vm.ip = chunk->code;
+Interpret_Result vm_interpret(const char *source) {
+    Chunk chunk;
+    chunk_init(&chunk);
+
+    // Compiler the source filing up a chunk with bytecode
+    if (!compiler_compile(source, &chunk)) {
+        return COMPILE_ERROR;
+    }
+
+    vm.chunk = &chunk;
+    vm.ip = chunk.code;
+
+    // Run the chunk on the VM
     return vm_run();
 }
 

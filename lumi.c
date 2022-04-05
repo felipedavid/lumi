@@ -8,11 +8,6 @@
 #include "vm.h"
 #include "lexer.h"
 
-Interpret_Result run(const char *source) {
-    tokens_print(source);
-    return INTERPRET_OK;
-}
-
 // NOTE: The source file read by this function is heap allocated
 // and will not be freed. I'm letting the OS take care of that
 // when the process termites. If your PC can't handle all source
@@ -36,10 +31,10 @@ void run_file(const char *file_name) {
     fclose(f);
     source[file_size] = '\0'; // Zero terminates string buffer (overwriting EOF)
 
-    Interpret_Result res = run(source);
+    Interpret_Result res = vm_interpret(source);
     switch(res) {
-    case INTERPRET_COMPILE_ERROR: exit(EX_DATAERR);
-    case INTERPRET_RUNTIME_ERROR: exit(EX_SOFTWARE);
+    case COMPILE_ERROR: exit(EX_DATAERR);
+    case RUNTIME_ERROR: exit(EX_SOFTWARE);
     }
 }
 
@@ -53,7 +48,7 @@ void run_prompt() {
         if (fgets(input, INPUT_SIZE, stdin) != input) break;
         input[strlen(input)-1] = '\0'; // Getting rid of newline
 
-        run(input);
+        vm_interpret(input);
         printf("\n");
     }
 #undef INPUT_SIZE
