@@ -8,6 +8,9 @@
 #include "vm.h"
 #include "lexer.h"
 
+#define DEBUG_TESTS
+#define DEBUG_TRACE
+
 // NOTE: The source file read by this function is heap allocated
 // and will not be freed. I'm letting the OS take care of that
 // when the process termites. If your PC can't handle all source
@@ -51,6 +54,7 @@ void run_prompt() {
         vm_interpret(input);
         printf("\n");
     }
+    
 #undef INPUT_SIZE
 }
 

@@ -23,19 +23,24 @@ START_OVER:
     } break;
     case 'A' ... 'Z': 
     case 'a' ... 'z': {
-        while (isalnum(*stream) || *stream == '_') {
-            stream++;
-        }
+        while (isalnum(*stream) || *stream == '_') stream++;
         token.type = TOKEN_IDENTIFIER;
         token.name = str_intern_range(token.start, stream);
     } break;
     case '"': {
-        while (*++stream != '"');
+        stream++;
+        while (*stream != '"') {
+            if (*stream == '\n') token.line++;
+            stream++;
+        };
         stream++;
         token.type = TOKEN_STRING;
     } break;
     case ' ': case '\t': case '\r': case '\n':
-        while (isspace(*++stream));
+        while (isspace(*stream)) {
+            if (*stream == '\n') token.line++;
+            stream++;
+        }
         goto START_OVER;
     default: {
         token.type = *stream++;
@@ -78,10 +83,11 @@ void tokens_print(const char *source) {
 void lex_init(const char *source) {
     stream = (char *) source;
     token.line = 1;
+    token_next();
 }
 
 void lex_test() {
-#define TEST_TYPE(t) token_next(); assert(token.type == (t))
+#define TEST_TYPE(t) assert(token.type == (t)); token_next()
     const char *source = "+(32)\n\n\"hello\n\"*5";
     lex_init(source);
 
@@ -92,6 +98,6 @@ void lex_test() {
     TEST_TYPE(TOKEN_STRING);
     TEST_TYPE('*');
     TEST_TYPE(TOKEN_NUMBER);
-    assert(token.line = 4);
+    assert(token.line == 4);
 #undef TEST_TYPE
 }

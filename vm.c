@@ -8,6 +8,12 @@ VM vm;
 
 void vm_init() {
     vm.stack_top = 0;
+    // Stretchy buffers require that the initial pointer has NULL value.
+    // In this case where we are defining a VM globaly that is not a problem,
+    // as global variables get value zero automatically. But in the future
+    // we maybe want to allocate a VM struct in the stack, so zeroing
+    // vm.stack is important.
+    vm.stack = NULL;
 }
 
 void vm_free() {
@@ -65,6 +71,7 @@ Interpret_Result vm_interpret(const char *source) {
 
     // Compiler the source filing up a chunk with bytecode
     if (!compiler_compile(source, &chunk)) {
+        chunk_free(&chunk);
         return COMPILE_ERROR;
     }
 
@@ -72,7 +79,10 @@ Interpret_Result vm_interpret(const char *source) {
     vm.ip = chunk.code;
 
     // Run the chunk on the VM
-    return vm_run();
+    Interpret_Result r = vm_run();
+
+    chunk_free(&chunk);
+    return r;
 }
 
 void vm_push(Value value) {
