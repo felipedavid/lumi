@@ -1,12 +1,18 @@
 #include <stdio.h>
 #include <string.h>
-#include <sysexits.h>
+//#include <sysexits.h>
 
 #include "common.h"
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
 #include "lexer.h"
+
+// Temporary
+#define EX_DATAERR  1
+#define EX_SOFTWARE 2
+#define EX_USAGE    3
+#define EX_IOERR    4
 
 #define DEBUG_TESTS
 #define DEBUG_TRACE
