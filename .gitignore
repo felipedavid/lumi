@@ -1,5 +1,7 @@
 *.o
+*.obj
 *.swp
 lumi
 tags
 code.lumi
+.vs
