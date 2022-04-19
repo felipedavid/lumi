@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "common.h"
 #include "lexer.h"
 
 extern Token token;
@@ -28,7 +29,7 @@ void run_file(const char *file_name) {
     rewind(f);
 
     // Reading the file contents in a buffer.
-    char *src = malloc(f_size);
+    char *src = xmalloc(f_size);
     fread(src, f_size, 1, f);
     src[f_size] = '\0'; // Make sure we have a zero-terminated string
 
@@ -47,6 +48,9 @@ void run_repl(void) {
 }
 
 int main(int argc, char **argv) {
+#if TESTS
+    buf_test();
+#endif
     if (argc == 1) {
         run_repl();
     } else if (argc == 2) {
