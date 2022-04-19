@@ -1,6 +1,9 @@
 *.o
 *.obj
 *.swp
+*.exe
+*.ilk
+*.pdb
 lumi
 tags
 code.lumi

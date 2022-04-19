@@ -93,21 +93,19 @@ void token_next(void) {
         }
     } break;
     default: {
+        token.type = *stream++;
     } break;
     }
     token.end = stream;
 }
 
+static const char *token_type_str[] = {
+    [TK_NAME] = "TK_NAME",
+    [TK_STRING] = "TK_STRING",
+    [TK_NUMBER] = "TK_NUMBER",
+};
+
 void token_print(void) {
-    switch(token.type) {
-    case TK_NAME:
-        printf("[TK_NAME] [lexeme: %.*s]\n");
-        break;
-    case TK_STRING:
-        printf("[TK_STRING] [lexeme: %.*s]\n"); 
-        break;
-    case TK_NUMBER:
-        printf("[TK_NUMBER] [lexeme: %.*s]\n");
-        break;
-    }
+    printf("[%s] [lexeme: %.*s]\n", 
+        token_type_str[token.type], (int)(token.start - token.end), token.start);
 }
