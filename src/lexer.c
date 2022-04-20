@@ -9,6 +9,7 @@ void lex_init(const char *source) {
 
 // Why the big ass switch? Read about jump tables.
 void token_next(void) {
+loop:
     token.start = stream;
     switch (*stream) {
     case '0':
@@ -21,7 +22,7 @@ void token_next(void) {
     case '7':
     case '8':
     case '9': {
-        token.type = TK_NUMBER;
+        token.type = TOKEN_NUMBER;
         while (isdigit(*stream)) {
             stream++;        
         }
@@ -79,19 +80,59 @@ void token_next(void) {
     case 'Y':
     case 'Z': {
         stream++;
-        token.type = TK_NAME;
+        token.type = TOKEN_NAME;
         while (isalnum(*stream) || *stream == '_') {
             stream++;
         }
     } break;
     case '"': {
-        token.type = TK_STRING;
+        token.type = TOKEN_STRING;
         while (*stream != '"') {
             if (*stream == '\n') {
+                token.line++;
             }
             stream++;
         }
     } break;
+    case '<':
+        stream++;
+        if (*stream == '=') {
+            token.type = TOKEN_LTEQ;
+            stream++;
+        } else {
+            token.type = TOKEN_LT;
+        }
+        break;
+    case '>':
+        stream++;
+        if (*stream == '=') {
+            token.type = TOKEN_GTEQ;
+            stream++;
+        } else {
+            token.type = TOKEN_GT;
+        }
+        break;
+    case '=':
+        stream++;
+        if (*stream == '=') {
+            token.type = TOKEN_EQEQ;
+            stream++;
+        } else {
+            token.type = TOKEN_EQ;
+        }
+        break;
+    case ' ':
+    case '\n':
+    case '\r':
+    case '\t':
+    case '\v': {
+        while(isspace(*stream)) {
+            if (*stream == '\n') {
+                token.line++;
+            }
+        }
+        goto loop;
+    }
     default: {
         token.type = *stream++;
     } break;
@@ -100,12 +141,18 @@ void token_next(void) {
 }
 
 static const char *token_type_str[] = {
-    [TK_NAME] = "TK_NAME",
-    [TK_STRING] = "TK_STRING",
-    [TK_NUMBER] = "TK_NUMBER",
+    [TOKEN_NAME]   = "TOKEN_NAME",
+    [TOKEN_STRING] = "TOKEN_STRING",
+    [TOKEN_NUMBER] = "TOKEN_NUMBER",
+    [TOKEN_LT]     = "TOKEN_LT",
+    [TOKEN_GT]     = "TOKEN_GT",
+    [TOKEN_EQ]     = "TOKEN_EQ",
+    [TOKEN_LTEQ]   = "TOKEN_LTEQ",
+    [TOKEN_GTEQ]   = "TOKEN_GTEQ",
+    [TOKEN_EQEQ]   = "TOKEN_EQEQ",
 };
 
 void token_print(void) {
     printf("[%s] [lexeme: %.*s]\n", 
-        token_type_str[token.type], (int)(token.start - token.end), token.start);
+        token_type_str[token.type], (int)(token.end - token.start), token.start);
 }

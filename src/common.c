@@ -1,7 +1,9 @@
 #include "common.h"
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+
 void *xmalloc(size_t n_bytes) {
-    void *ptr = malloc(n_bytes);/
+    void *ptr = malloc(n_bytes);
     if (ptr == NULL) {
         fprintf(stderr, "[!] xmalloc failed\n");
         exit(1);
@@ -19,7 +21,6 @@ void *xrealloc(void *ptr, size_t n_bytes) {
 }
 
 /* Stretchy bufers */
-
 typedef struct {
     size_t len;
     size_t cap;

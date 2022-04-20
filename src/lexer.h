@@ -2,15 +2,27 @@
 #define TOKEN_H
 
 typedef enum {
-    TK_NUMBER = 128,
-    TK_STRING,
-    TK_NAME,
+    TOKEN_NUMBER = 128,
+    TOKEN_STRING,
+    TOKEN_NAME,
+
+    TOKEN_LT,
+    TOKEN_GT,
+    TOKEN_EQ,
+    TOKEN_LTEQ,
+    TOKEN_GTEQ,
+    TOKEN_EQEQ,
 } Token_Type;
 
 typedef struct {
     Token_Type type;
+    int line;
     const char *start;
     const char *end;
+    union {
+        int int_val;
+        double float_val;
+    };
 } Token;
 
 void lex_init(const char *source);
