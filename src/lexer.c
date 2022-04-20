@@ -1,10 +1,26 @@
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdbool.h>
+
 #include "lexer.h"
 
 Token token;
 const char *stream;
+bool had_error = false;
 
 void lex_init(const char *source) {
     stream = source;
+}
+
+void lex_error(const char *fmt, ...) {
+    had_error = true;
+
+    va_list args;
+    va_start(args, fmt);
+    printf("line %d: ", token.line);
+    vprintf(fmt, args);
+    printf("\n");
+    va_end(args);
 }
 
 // Why the big ass switch? Read about jump tables.
@@ -86,13 +102,15 @@ loop:
         }
     } break;
     case '"': {
+        stream++;
         token.type = TOKEN_STRING;
-        while (*stream != '"') {
+        while (*stream && *stream != '"') {
             if (*stream == '\n') {
-                token.line++;
+                lex_error("Strings can't have newline characters");
             }
             stream++;
         }
+        lex_error("Unterminated string literal");
     } break;
     case '<':
         stream++;
