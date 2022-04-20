@@ -22,8 +22,6 @@ typedef struct {
     union {
         int int_val;
         double float_val;
-        const char *str_val;
-        const char *name;
     };
 } Token;
 
