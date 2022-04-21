@@ -1,14 +1,41 @@
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdbool.h>
+
 #include "lexer.h"
 
 Token token;
 const char *stream;
+bool lex_had_error = false;
 
 void lex_init(const char *source) {
     stream = source;
 }
 
-// Why the big ass switch? Read about jump tables.
+void lex_error(const char *fmt, ...) {
+    lex_had_error = true;
+
+    va_list args;
+    va_start(args, fmt);
+
+    printf("Syntax error at line %d: ", token.line);
+    vprintf(fmt, args);
+    printf("\n");
+
+    va_end(args);
+}
+
 void token_next(void) {
+#define HAS_EQUALS(yes, no)\
+    stream++; \
+    if (*stream == '=') { \
+        token.type = yes;\
+        stream++;\
+    } else {\
+        token.type = no;\
+    }\
+    break;
+
 loop:
     token.start = stream;
     switch (*stream) {
@@ -86,41 +113,19 @@ loop:
         }
     } break;
     case '"': {
+        stream++;
         token.type = TOKEN_STRING;
-        while (*stream != '"') {
+        while (*stream && *stream != '"') {
             if (*stream == '\n') {
-                token.line++;
+                lex_error("String with newline character");
             }
             stream++;
         }
+        lex_error("Unterminated string literal");
     } break;
-    case '<':
-        stream++;
-        if (*stream == '=') {
-            token.type = TOKEN_LTEQ;
-            stream++;
-        } else {
-            token.type = TOKEN_LT;
-        }
-        break;
-    case '>':
-        stream++;
-        if (*stream == '=') {
-            token.type = TOKEN_GTEQ;
-            stream++;
-        } else {
-            token.type = TOKEN_GT;
-        }
-        break;
-    case '=':
-        stream++;
-        if (*stream == '=') {
-            token.type = TOKEN_EQEQ;
-            stream++;
-        } else {
-            token.type = TOKEN_EQ;
-        }
-        break;
+    case '<': HAS_EQUALS(TOKEN_LTEQ, TOKEN_LT);
+    case '>': HAS_EQUALS(TOKEN_GTEQ, TOKEN_GT);
+    case '=': HAS_EQUALS(TOKEN_EQEQ, TOKEN_EQ);
     case ' ':
     case '\n':
     case '\r':
@@ -138,6 +143,8 @@ loop:
     } break;
     }
     token.end = stream;
+
+#undef HAS_EQUALS
 }
 
 static const char *token_type_str[] = {

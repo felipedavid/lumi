@@ -50,6 +50,8 @@ void run_repl(void) {
 int main(int argc, char **argv) {
 #if TESTS
     buf_test();
+    intern_str_test();
+    lex_test();
 #endif
     if (argc == 1) {
         run_repl();
