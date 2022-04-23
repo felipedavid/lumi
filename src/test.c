@@ -1,5 +1,8 @@
 #include <assert.h>
 
+#include "lexer.h"
+#include "common.h"
+
 void buf_test(void) {
     int buf = NULL;
     enum { N = 1024};
@@ -32,4 +35,21 @@ void intern_str_test(void ) {
 }
 
 void lex_test(void) {
+#define TEST_TYPE(t) (token_next(); assert(token.type == t))
+
+    lex_init("(2+3)*5 >= a");
+    TEST_TYPE('(');
+    TEST_TYPE(TOKEN_NUMBER);
+    TEST_TYPE('+');
+    TEST_TYPE(')');
+    TEST_TYPE('*');
+    TEST_TYPE(TOKEN_NUMBER);
+    TEST_TYPE(TOKEN_GTEQ);
+    TEST_TYPE(TOKEN_NAME);
+
+    lex_init("\"hello\" == \"there\"");
+    TEST_TYPE(TOKEN_STRING);
+    TEST_TYPE(TOKEN_EQEQ);
+    TEST_TYPE(TOKEN_STRING);
+#undef TEST_TYPE
 }

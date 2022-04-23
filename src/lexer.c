@@ -108,7 +108,7 @@ loop:
     case 'Z': {
         stream++;
         token.type = TOKEN_NAME;
-        while (isalnum(*stream) || *stream == '_') {
+        while (isalnum(*stream) || (*stream == '_')) {
             stream++;
         }
     } break;
@@ -121,7 +121,12 @@ loop:
             }
             stream++;
         }
-        lex_error("Unterminated string literal");
+
+        if (*stream == '"') {
+            stream++;
+        } else {
+            lex_error("Unterminated string literal");
+        }
     } break;
     case '<': HAS_EQUALS(TOKEN_LTEQ, TOKEN_LT);
     case '>': HAS_EQUALS(TOKEN_GTEQ, TOKEN_GT);
@@ -135,6 +140,7 @@ loop:
             if (*stream == '\n') {
                 token.line++;
             }
+            stream++;
         }
         goto loop;
     }

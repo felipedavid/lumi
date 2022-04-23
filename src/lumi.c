@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "lexer.h"
+#include "test.h"
 
 extern Token token;
 
