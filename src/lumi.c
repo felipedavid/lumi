@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "vm.h"
 #include "common.h"
 #include "lexer.h"
 #include "test.h"
@@ -8,12 +10,17 @@
 extern Token token;
 
 void run(const char *source) {
-    lex_init(source);
-    token_next();
-    while (token.type) {
-        token_print();
-        token_next();
-    }
+    //lex_init(source);
+    //token_next();
+    //while (token.type) {
+    //    token_print();
+    //    token_next();
+    //}
+    Chunk chunk;
+    chunk_push_code(&chunk, (u8)OP_RETURN);
+    chunk_push_code(&chunk, (u8)OP_RETURN);
+    chunk_push_code(&chunk, (u8)OP_RETURN);
+    chunk_disassemble(&chunk);
 }
 
 void run_file(const char *file_name) {
@@ -49,11 +56,10 @@ void run_repl(void) {
 }
 
 int main(int argc, char **argv) {
-#if TESTS
     buf_test();
     intern_str_test();
     lex_test();
-#endif
+
     if (argc == 1) {
         run_repl();
     } else if (argc == 2) {
