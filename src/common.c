@@ -32,15 +32,15 @@ typedef struct {
 // Yeah, these macros are kinda ugly, but they give us a very
 // nice dynamic array implementation for any type.
 #define buf__hdr(b) ((b) ? ((Buf_Hdr *) ((char*)b - offsetof(Buf_Hdr, buf))) : NULL)
-#define buf__fit(b, n) ((n <= buf_cap(b)) ? 0 : (b = buf__grow((b), (n), sizeof(*(b)))))
+#define buf__fit(b, n) ((n <= buf_cap(b)) ? 0 : ((b) = buf__grow((b), (n), sizeof(*(b)))))
 
 #define buf_len(b) ((b) ? buf__hdr(b)->len : 0)
 #define buf_cap(b) ((b) ? buf__hdr(b)->len : 0)
 
-#define buf_push(b, x) (buf__fit(b, buf_len(b)+1), b[buf__hdr(b)->len++] = x) 
+#define buf_push(b, x) (buf__fit(b, buf_len(b)+1), (b)[buf__hdr(b)->len++] = (x)) 
 #define buf_free(b) (free(buf__hdr(b)), b = NULL)
 
-void *but__grow(void *ptr, size_t min_cap, size_t elem_size) {
+void *buf__grow(void *ptr, size_t min_cap, size_t elem_size) {
     size_t new_cap = MAX(min_cap, buf_cap(ptr)*2+1);
     size_t new_size = offsetof(Buf_Hdr, buf) + (new_cap * elem_size);
 
@@ -61,7 +61,7 @@ typedef struct {
     size_t len;
 } Interned_Str;
 
-Interned_Str interned_strs;
+Interned_Str *interned_strs = NULL;
 
 // Canonicalize a given string range
 const char *str_intern(const char *start, const char *end) {
@@ -69,7 +69,7 @@ const char *str_intern(const char *start, const char *end) {
     size_t len = (end - start);
     for (int i = 0; i < buf_len(interned_strs); i++) {
         if (len == interned_strs[i].len && !strncmp(start, interned_strs[i].str, len)) {
-            return interned_strs[i].len;
+            return interned_strs[i].str;
         }
     }
 
