@@ -14,11 +14,13 @@ void chunk_free(Chunk *ck) {
 }
 
 void chunk_push_code(Chunk *ck, u8 code) {
-    ck++;
+    buf_push(ck->code, code);
 }
 
-void chunk_push_data(Chunk *ck, Value val) {
-    ck++;
+int chunk_push_data(Chunk *ck, Value val) {
+    int i = buf_len(ck->sdata);
+    buf_push(ck->sdata, val);
+    return i;
 }
 
 const char *op_code_str[] = {
@@ -33,10 +35,10 @@ void chunk_disassemble(Chunk *ck) {
     for (int i = 0; i < buf_len(code); i++) {
         switch (code[i]) {
         case OP_RETURN: {
-            printf("[%s]\n", op_code_str[i]);
+            printf("[%s]\n", op_code_str[code[i]]);
         } break;
         case OP_STATIC_VAL: {
-            printf("[%s]\n", op_code_str[i], data[code[i+1]]);
+            printf("[%s] [%lf]\n", op_code_str[code[i]], data[code[i+1]]);
             i++;
         } break;
         default:

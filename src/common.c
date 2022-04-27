@@ -38,11 +38,6 @@ void *buf__grow(void *ptr, size_t min_cap, size_t elem_size) {
     return new_buf->buf;
 }
 
-typedef struct {
-    const char *str;
-    size_t len;
-} Interned_Str;
-
 Interned_Str *interned_strs = NULL;
 
 // Canonicalize a given string range

@@ -17,8 +17,10 @@ void run(const char *source) {
     //    token_next();
     //}
     Chunk chunk;
-    chunk_push_code(&chunk, (u8)OP_RETURN);
-    chunk_push_code(&chunk, (u8)OP_RETURN);
+    chunk_init(&chunk);
+    chunk_push_code(&chunk, (u8)OP_STATIC_VAL);
+    u8 index = chunk_push_data(&chunk, 127);
+    chunk_push_code(&chunk, (u8)index);
     chunk_push_code(&chunk, (u8)OP_RETURN);
     chunk_disassemble(&chunk);
 }
