@@ -24,6 +24,7 @@ void *buf__grow(void *ptr, size_t min_cap, size_t elem_size);
 #define buf_cap(b) ((b) ? buf__hdr(b)->len : 0)
 
 #define buf_push(b, x) (buf__fit(b, buf_len(b)+1), (b)[buf__hdr(b)->len++] = (x)) 
+#define buf_pop(b) ((b)[--buf__hdr(b)->len])
 #define buf_free(b) (free(buf__hdr(b)), b = NULL)
 
 void *xmalloc(size_t n_bytes);

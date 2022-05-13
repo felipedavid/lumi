@@ -5,7 +5,7 @@
 
 typedef double Value;
 
-// The operations that form the architecture of our ficational chip
+// The operations that form the architecture of our fictional chip
 typedef enum {
     OP_RETURN,
     OP_STATIC_VAL,
@@ -18,8 +18,15 @@ typedef struct {
     Value *sdata; // Static data
 } Chunk;
 
+typedef enum {
+    OK,
+} VM_Result;
+
 typedef struct {
-    u8 *stack;
+    Value *stack;
+    Chunk *chunk;
+    u8 *ip; // Points to the currently executing instruction
+    Value *sp; // Points to the top of the stack
 } VM;
 
 void chunk_init(Chunk *ck);
@@ -28,6 +35,8 @@ void chunk_push_code(Chunk *ck, u8 code);
 int chunk_push_data(Chunk *ck, Value val);
 void chunk_disassemble(Chunk *ck);
 void vm_init();
-void vm_run();
+void vm_push(Value val);
+Value vm_pop();
+VM_Result vm_run(Chunk *chunk);
 
 #endif

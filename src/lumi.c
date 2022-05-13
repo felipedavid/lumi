@@ -10,19 +10,15 @@
 extern Token token;
 
 void run(const char *source) {
-    //lex_init(source);
-    //token_next();
-    //while (token.type) {
-    //    token_print();
-    //    token_next();
-    //}
     Chunk chunk;
     chunk_init(&chunk);
+
     chunk_push_code(&chunk, (u8)OP_STATIC_VAL);
     u8 index = chunk_push_data(&chunk, 127);
     chunk_push_code(&chunk, (u8)index);
     chunk_push_code(&chunk, (u8)OP_RETURN);
-    chunk_disassemble(&chunk);
+
+    vm_run(&chunk);
 }
 
 void run_file(const char *file_name) {
