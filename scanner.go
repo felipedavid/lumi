@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 const (
 	// Single-character tokens
 	LeftParen = iota
@@ -124,6 +126,7 @@ func newScanner(source string) *Scanner {
 	return &Scanner{
 		source: source,
 		line:   1,
+		tokens: make([]Token, 0, 10),
 	}
 }
 
