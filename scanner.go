@@ -131,9 +131,30 @@ func (s *Scanner) scanToken() {
 	case '\n':
 		s.line++
 
+	case '"':
+		s.string()
+
 	default:
 		reportError(s.line, "Unexpected character.")
 	}
+}
+
+func (s *Scanner) string() {
+	for s.peek() != '"' && !s.isAtEnd() {
+		if s.peek() == '\n' {
+			s.line++
+		}
+		s.advance()
+	}
+
+	if s.isAtEnd() {
+		reportError(s.line, "Unterminated string.")
+		return
+	}
+	s.advance()
+
+	value := s.source[s.start+1 : s.current-1]
+	s.addToken(String, value)
 }
 
 func (s *Scanner) peek() byte {
