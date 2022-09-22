@@ -51,7 +51,7 @@ func run(source string) error {
 	tokens := s.scanTokens()
 
 	for _, t := range tokens {
-		fmt.Printf("%v\n", t)
+		fmt.Println(t.String())
 	}
 
 	return nil
