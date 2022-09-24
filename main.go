@@ -39,6 +39,8 @@ func runPrompt() {
 		line, _ := reader.ReadString('\n')
 		if line == "" {
 			break
+		} else if line == "\n" {
+			continue
 		}
 		line = strings.Replace(line, "\n", "", -1)
 		run(line)
