@@ -56,6 +56,9 @@ func run(source string) error {
 		fmt.Println(t.String())
 	}
 
+	a := ASTPrinter{}
+	fmt.Println(a.print(root))
+
 	return nil
 }
 
