@@ -50,10 +50,11 @@ func runPrompt() {
 
 func run(source string) error {
 	s := newScanner(source)
-	tokens := s.scanTokens()
+	p := newParser(s.scanTokens())
+	root := p.parse()
 
-	for _, t := range tokens {
-		fmt.Println(t.String())
+	if hadError {
+		return nil
 	}
 
 	a := ASTPrinter{}
