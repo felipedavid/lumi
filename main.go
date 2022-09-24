@@ -59,5 +59,5 @@ func run(source string) error {
 
 func reportError(line int, message string) {
 	hadError = true
-	fmt.Printf("[line %d] Error %s: %s", line, "", message)
+	fmt.Printf("[line %d] Error %s: %s\n", line, "", message)
 }

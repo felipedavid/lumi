@@ -204,7 +204,6 @@ func (s *Scanner) scanToken() {
 
 	case '"':
 		s.string()
-
 	default:
 		if isDigit(c) {
 			s.number()
