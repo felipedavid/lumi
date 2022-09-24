@@ -102,6 +102,25 @@ var TokenTypeString = []string{
 	Eof:    "Eof",
 }
 
+var keywords = map[string]TokenType{
+	"and":    And,
+	"class":  Class,
+	"else":   Else,
+	"false":  False,
+	"for":    For,
+	"fun":    Fun,
+	"if":     If,
+	"nil":    Nil,
+	"or":     Or,
+	"print":  Print,
+	"return": Return,
+	"super":  Super,
+	"this":   This,
+	"true":   True,
+	"var":    Var,
+	"while":  While,
+}
+
 type Token struct {
 	tType   TokenType
 	lexeme  string
@@ -191,8 +210,51 @@ func (s *Scanner) scanToken() {
 		s.string()
 
 	default:
-		reportError(s.line, "Unexpected character.")
+		if isDigit(c) {
+			s.number()
+		} else if isAlpha(c) {
+			s.identifier()
+		} else {
+			reportError(s.line, "Unexpected character.")
+		}
 	}
+}
+
+func (s *Scanner) identifier() {
+	for isAlphaNumeric(s.peek()) {
+		s.advance()
+	}
+
+	lexeme := s.source[s.start:s.current]
+
+	t, isKeyword := keywords[lexeme]
+	if !isKeyword {
+		t = Identifier
+	}
+	s.addToken(t, nil)
+}
+
+func (s *Scanner) number() {
+	for isDigit(s.peek()) {
+		s.advance()
+	}
+
+	if s.peek() == '.' && isDigit(s.peekNext()) {
+		s.advance()
+		for isDigit(s.peek()) {
+			s.advance()
+		}
+	}
+
+	n, _ := strconv.ParseFloat(s.source[s.start:s.current], 64)
+	s.addToken(Number, n)
+}
+
+func (s *Scanner) peekNext() byte {
+	if s.isAtEnd() {
+		return 0
+	}
+	return s.source[s.current+1]
 }
 
 func (s *Scanner) string() {
