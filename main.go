@@ -1,9 +1,8 @@
 package main
 
 import (
-	"errors"
+	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
 )
@@ -35,7 +34,7 @@ func newLumi() *Lumi {
 	}
 }
 
-func (l *Lumi) run(source []byte) error {
+func (l *Lumi) run(source string) error {
 	scanner := newScanner(source)
 	tokens := scanner.scanTokens()
 
@@ -51,18 +50,18 @@ func (l *Lumi) runFile(file string) error {
 		return err
 	}
 
-	return l.run(source)
+	return l.run(string(source))
 }
 
 func (l *Lumi) prompt() {
-	var source []byte
+	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Printf(">>> ")
-		_, err := fmt.Scanf("%s\n", &source)
-		if errors.Is(err, io.EOF) {
+		source, err := reader.ReadString('\n')
+		if err != nil {
 			break
 		}
-		l.run(source)
+		l.run(source[:len(source)-1])
 		l.hadError = false
 	}
 }

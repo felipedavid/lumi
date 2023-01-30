@@ -1,5 +1,7 @@
 package main
 
+import "strconv"
+
 type TokenType int
 
 const (
@@ -59,9 +61,9 @@ type Scanner struct {
 	line    int
 }
 
-func newScanner(source []byte) *Scanner {
+func newScanner(source string) *Scanner {
 	return &Scanner{
-		source: string(source),
+		source: source,
 		line:   1,
 	}
 }
@@ -103,7 +105,50 @@ func (s *Scanner) scanToken() {
 		s.addToken(Semicolon, nil)
 	case '*':
 		s.addToken(Star, nil)
+	case '!':
+		if s.match('=') {
+			s.addToken(BangEqual, nil)
+		} else {
+			s.addToken(Bang, nil)
+		}
+	case '=':
+		if s.match('=') {
+			s.addToken(EqualEqual, nil)
+		} else {
+			s.addToken(Equal, nil)
+		}
+	case '<':
+		if s.match('=') {
+			s.addToken(LessEqual, nil)
+		} else {
+			s.addToken(Less, nil)
+		}
+	case '>':
+		if s.match('=') {
+			s.addToken(GreaterEqual, nil)
+		} else {
+			s.addToken(Greater, nil)
+		}
+	case '/':
+		if s.match('/') {
+			for s.peek() != '\n' && !s.isAtEnd() {
+				s.advance()
+			}
+		} else {
+			s.addToken(Slash, nil)
+		}
+	case ' ':
+	case '\t':
+	case '\r':
+	case '\n':
+		s.line++
+	case '"':
+		s.string()
 	default:
+		if isDigit(c) {
+			s.number()
+			return
+		}
 		lumi.error(s.line, "Unexpected Character")
 	}
 }
@@ -117,6 +162,73 @@ func (s *Scanner) addToken(t TokenType, literal any) {
 	})
 }
 
+func (s *Scanner) number() {
+	for isDigit(s.peek()) {
+		s.advance()
+	}
+
+	if s.peek() == '.' && isDigit(s.peekNext()) {
+		s.advance()
+
+		for isDigit(s.peek()) {
+			s.advance()
+		}
+	}
+
+	number, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
+	if err != nil {
+		lumi.error(s.line, "invalid number literal")
+		return
+	}
+
+	s.addToken(Number, number)
+}
+
+func (s *Scanner) string() {
+	for s.peek() != '"' && !s.isAtEnd() {
+		if s.peek() == '\n' {
+			s.line++
+		}
+		s.advance()
+	}
+
+	if s.isAtEnd() {
+		lumi.error(s.line, "Unterminated string")
+		return
+	}
+
+	s.advance()
+
+	lexeme := s.source[s.start+1 : s.current-1]
+	s.addToken(String, lexeme)
+}
+
+func (s *Scanner) peekNext() byte {
+	if (s.current + 1) >= len(s.source) {
+		return 0
+	}
+	return s.source[s.current+1]
+}
+
+func (s *Scanner) peek() byte {
+	if s.isAtEnd() {
+		return 0
+	}
+	return s.source[s.current]
+}
+
+func (s *Scanner) match(ch byte) bool {
+	if s.isAtEnd() {
+		return false
+	}
+	if !(s.source[s.current] == ch) {
+		return false
+	}
+
+	s.current++
+	return true
+}
+
 func (s *Scanner) advance() byte {
 	ch := s.source[s.current]
 	s.current++
@@ -125,4 +237,8 @@ func (s *Scanner) advance() byte {
 
 func (s *Scanner) isAtEnd() bool {
 	return s.current >= len(s.source)
+}
+
+func isDigit(ch byte) bool {
+	return ch >= '0' && ch <= '9'
 }
