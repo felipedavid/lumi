@@ -134,6 +134,16 @@ func (s *Scanner) scanToken() {
 			for s.peek() != '\n' && !s.isAtEnd() {
 				s.advance()
 			}
+		} else if s.match('*') {
+			for s.peek() != '*' && s.peekNext() != '/' && !s.isAtEnd() {
+				if s.peek() == '\n' {
+					s.line++
+				}
+			}
+
+			if s.isAtEnd() {
+				lumi.error(s.line, "unclosed block comment")
+			}
 		} else {
 			s.addToken(Slash, nil)
 		}
