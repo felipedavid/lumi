@@ -5,7 +5,7 @@ import "strconv"
 type TokenType int
 
 const (
-	LeftParen = iota
+	LeftParen TokenType = iota
 	RightParen
 	LeftBrace
 	RightBrace
@@ -148,8 +148,11 @@ func (s *Scanner) scanToken() {
 		if isDigit(c) {
 			s.number()
 			return
+		} else if isAlpha(c) {
+			s.identifier()
+		} else {
+			lumi.error(s.line, "Unexpected Character")
 		}
-		lumi.error(s.line, "Unexpected Character")
 	}
 }
 
@@ -160,6 +163,38 @@ func (s *Scanner) addToken(t TokenType, literal any) {
 		literal:   literal,
 		line:      s.line,
 	})
+}
+
+var keywords = map[string]TokenType{
+	"and":    And,
+	"class":  Class,
+	"else":   Else,
+	"false":  False,
+	"for":    For,
+	"fun":    Fun,
+	"if":     If,
+	"nil":    Nil,
+	"or":     Or,
+	"print":  Print,
+	"return": Return,
+	"super":  Super,
+	"this":   This,
+	"true":   True,
+	"var":    Var,
+	"while":  While,
+}
+
+func (s *Scanner) identifier() {
+	for isAlphaNumeric(s.peek()) {
+		s.advance()
+	}
+	lexeme := s.source[s.start:s.current]
+
+	typ, ok := keywords[lexeme]
+	if !ok {
+		typ = Identifier
+	}
+	s.addToken(typ, lexeme)
 }
 
 func (s *Scanner) number() {
@@ -239,6 +274,13 @@ func (s *Scanner) isAtEnd() bool {
 	return s.current >= len(s.source)
 }
 
+func isAlphaNumeric(ch byte) bool {
+	return isAlpha(ch) || isDigit(ch)
+}
+
+func isAlpha(ch byte) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
+}
 func isDigit(ch byte) bool {
 	return ch >= '0' && ch <= '9'
 }
