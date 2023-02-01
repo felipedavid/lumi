@@ -15,17 +15,31 @@ type Lumi struct {
 var lumi = newLumi()
 
 func main() {
-	if len(os.Args) > 2 {
-		fmt.Printf("Usage: ./%s <source_file>\n", os.Args[0])
-	} else if len(os.Args) == 2 {
-		_ = lumi.runFile(os.Args[1])
-	} else {
-		lumi.prompt()
-	}
+	//if len(os.Args) > 2 {
+	//	fmt.Printf("Usage: ./%s <source_file>\n", os.Args[0])
+	//} else if len(os.Args) == 2 {
+	//	_ = lumi.runFile(os.Args[1])
+	//} else {
+	//	lumi.prompt()
+	//}
 
-	if lumi.hadError {
-		os.Exit(ExDataErr)
+	//if lumi.hadError {
+	//	os.Exit(ExDataErr)
+	//}
+	expr := BinaryExpr{
+		left: LiteralExpr{
+			value: 256,
+		},
+		operator: Token{
+			tokenType: EqualEqual,
+			lexeme:    "==",
+		},
+		right: LiteralExpr{
+			value: 312,
+		},
 	}
+	a := AstPrinter{}
+	fmt.Printf("%v\n", a.print(expr))
 }
 
 func newLumi() *Lumi {
