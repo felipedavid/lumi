@@ -9,63 +9,30 @@ type Parser struct {
 	current int
 }
 
-func (p *Parser) primary() Expr {
-	if p.match(False) {
-		return LiteralExpr{value: false}
+func newParser(tokens []Token) *Parser {
+	return &Parser{
+		tokens: tokens,
 	}
-	if p.match(True) {
-		return LiteralExpr{value: true}
-	}
-	if p.match(Nil) {
-		return LiteralExpr{value: nil}
-	}
-
-	if p.match(Number, String) {
-		return LiteralExpr{value: p.previous().literal}
-	}
-
-	if p.match(LeftParen) {
-		expr := p.expression()
-		p.consume(RightParen, "Expect ')' after expression")
-		return GroupingExpr{expr: expr}
-	}
-	return nil
 }
 
-func (p *Parser) unary() Expr {
-	if p.match(Bang, Minus) {
-		op := p.previous()
-		right := p.unary()
-		return UnaryExpr{
-			operator: op,
-			right:    right,
-		}
+func (p *Parser) parse() Expr {
+	expr := p.expression()
+	if r := recover(); r != nil {
+		expr = nil
 	}
-	return p.primary()
-}
-
-func (p *Parser) factor() Expr {
-	expr := p.unary()
-
-	for p.match(Star, Slash) {
-		op := p.previous()
-		right := p.unary()
-		expr = BinaryExpr{
-			left:     expr,
-			operator: op,
-			right:    right,
-		}
-	}
-
 	return expr
 }
 
-func (p *Parser) term() Expr {
-	expr := p.factor()
+func (p *Parser) expression() Expr {
+	return p.equality()
+}
 
-	for p.match(Minus, Plus) {
+func (p *Parser) equality() Expr {
+	expr := p.comparison()
+
+	for p.match(EqualEqual, BangEqual) {
 		op := p.previous()
-		right := p.factor()
+		right := p.comparison()
 		expr = BinaryExpr{
 			left:     expr,
 			operator: op,
@@ -92,12 +59,12 @@ func (p *Parser) comparison() Expr {
 	return expr
 }
 
-func (p *Parser) equality() Expr {
-	expr := p.comparison()
+func (p *Parser) term() Expr {
+	expr := p.factor()
 
-	for p.match(EqualEqual, BangEqual) {
+	for p.match(Minus, Plus) {
 		op := p.previous()
-		right := p.comparison()
+		right := p.factor()
 		expr = BinaryExpr{
 			left:     expr,
 			operator: op,
@@ -108,8 +75,87 @@ func (p *Parser) equality() Expr {
 	return expr
 }
 
-func (p *Parser) expression() Expr {
-	return p.equality()
+func (p *Parser) factor() Expr {
+	expr := p.unary()
+
+	for p.match(Star, Slash) {
+		op := p.previous()
+		right := p.unary()
+		expr = BinaryExpr{
+			left:     expr,
+			operator: op,
+			right:    right,
+		}
+	}
+
+	return expr
+}
+
+func (p *Parser) unary() Expr {
+	if p.match(Bang, Minus) {
+		op := p.previous()
+		right := p.unary()
+		return UnaryExpr{
+			operator: op,
+			right:    right,
+		}
+	}
+	return p.primary()
+}
+
+func (p *Parser) primary() Expr {
+	if p.match(False) {
+		return LiteralExpr{value: false}
+	}
+	if p.match(True) {
+		return LiteralExpr{value: true}
+	}
+	if p.match(Nil) {
+		return LiteralExpr{value: nil}
+	}
+
+	if p.match(Number, String) {
+		return LiteralExpr{value: p.previous().literal}
+	}
+
+	if p.match(LeftParen) {
+		expr := p.expression()
+		p.consume(RightParen, "Expect ')' after expression")
+		return GroupingExpr{expr: expr}
+	}
+	lumi.parseError(p.peek(), "Expect expression.")
+	panic(ParseError)
+}
+
+func (p *Parser) sync() {
+	p.advance()
+
+	for !p.isAtEnd() {
+		if p.previous().tokenType == Semicolon {
+			return
+		}
+
+		switch p.peek().tokenType {
+		case Class:
+			return
+		case Fun:
+			return
+		case Var:
+			return
+		case For:
+			return
+		case If:
+			return
+		case While:
+			return
+		case Print:
+			return
+		case Return:
+			return
+		}
+
+		p.advance()
+	}
 }
 
 func (p *Parser) consume(t TokenType, errorMessage string) Token {
@@ -117,7 +163,7 @@ func (p *Parser) consume(t TokenType, errorMessage string) Token {
 		return p.advance()
 	}
 
-	lumi.error(p.peek(), errorMessage)
+	lumi.parseError(p.peek(), errorMessage)
 	panic(ParseError)
 }
 

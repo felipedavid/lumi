@@ -4,9 +4,9 @@ import "fmt"
 
 type AstPrinter struct{}
 
-func (a AstPrinter) print(e Expr) string {
+func (a AstPrinter) print(e Expr) {
 	str, _ := e.accept(a)
-	return fmt.Sprintf("%v", str)
+	fmt.Printf("%v\n", str)
 }
 
 func (a AstPrinter) visitLiteralExpr(e LiteralExpr) (any, error) {

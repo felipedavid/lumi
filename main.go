@@ -37,10 +37,13 @@ func newLumi() *Lumi {
 func (l *Lumi) run(source string) error {
 	scanner := newScanner(source)
 	tokens := scanner.scanTokens()
+	parser := newParser(tokens)
 
-	for _, token := range tokens {
-		fmt.Printf("%+v\n", token)
-	}
+	astP := AstPrinter{}
+
+	expr := parser.parse()
+	astP.print(expr)
+
 	return nil
 }
 
@@ -66,12 +69,16 @@ func (l *Lumi) prompt() {
 	}
 }
 
-func (l *Lumi) error(t Token, message string) {
+func (l *Lumi) parseError(t Token, message string) {
 	if t.tokenType == Eof {
 		l.report(t.line, " at end", message)
 	} else {
 		l.report(t.line, fmt.Sprintf(" at '%s'", t.lexeme), message)
 	}
+}
+
+func (l *Lumi) scanError(line int, message string) {
+	l.report(line, "", message)
 }
 
 func (l *Lumi) report(line int, where, message string) {

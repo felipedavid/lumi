@@ -142,7 +142,7 @@ func (s *Scanner) scanToken() {
 			}
 
 			if s.isAtEnd() {
-				lumi.error(s.line, "unclosed block comment")
+				lumi.scanError(s.line, "unclosed block comment")
 			}
 		} else {
 			s.addToken(Slash, nil)
@@ -161,7 +161,7 @@ func (s *Scanner) scanToken() {
 		} else if isAlpha(c) {
 			s.identifier()
 		} else {
-			lumi.error(s.line, "Unexpected Character")
+			lumi.scanError(s.line, "Unexpected Character")
 		}
 	}
 }
@@ -222,7 +222,7 @@ func (s *Scanner) number() {
 
 	number, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
 	if err != nil {
-		lumi.error(s.line, "invalid number literal")
+		lumi.scanError(s.line, "invalid number literal")
 		return
 	}
 
@@ -238,7 +238,7 @@ func (s *Scanner) string() {
 	}
 
 	if s.isAtEnd() {
-		lumi.error(s.line, "Unterminated string")
+		lumi.scanError(s.line, "Unterminated string")
 		return
 	}
 
