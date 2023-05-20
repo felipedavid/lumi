@@ -181,8 +181,6 @@ void scan_int() {
       base = 2;
     } else if (isdigit(tolower(*stream))) {
       base = 8;
-    } else {
-      syntax_error("Invalid integer literal suffix '%c'", *stream);
     }
   }
 
@@ -511,7 +509,8 @@ bool expect_token(TokenKind kind) {
 
 void lex_test() {
   // Integer literal tests
-  init_stream("18446744073709551615 0xffffffffffffffff 042 0b1111");
+  init_stream("0 18446744073709551615 0xffffffffffffffff 042 0b1111");
+  assert_token_int(0);
   assert_token_int(18446744073709551615ull);
   assert_token_int(0xffffffffffffffffull);
   assert_token_int(042);
