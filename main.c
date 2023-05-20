@@ -124,6 +124,7 @@ typedef enum {
 } TokenKind;
 
 typedef enum {
+  TOKENMOD_NONE,
   TOKENMOD_HEX,
   TOKENMOD_BIN,
   TOKENMOD_OCT,
@@ -175,11 +176,14 @@ void scan_int() {
     stream++;
     if (tolower(*stream) == 'x') {
       stream++;
+      token.mod = TOKENMOD_HEX;
       base = 16;
     } else if (tolower(*stream) == 'b') {
       stream++;
+      token.mod = TOKENMOD_BIN;
       base = 2;
     } else if (isdigit(tolower(*stream))) {
+      token.mod = TOKENMOD_OCT;
       base = 8;
     }
   }
@@ -512,8 +516,11 @@ void lex_test() {
   init_stream("0 18446744073709551615 0xffffffffffffffff 042 0b1111");
   assert_token_int(0);
   assert_token_int(18446744073709551615ull);
+  assert(token.mod == TOKENMOD_HEX);
   assert_token_int(0xffffffffffffffffull);
+  assert(token.mod == TOKENMOD_OCT);
   assert_token_int(042);
+  assert(token.mod == TOKENMOD_BIN);
   assert_token_int(0xF);
   assert_token_eof();
 
