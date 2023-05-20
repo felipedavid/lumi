@@ -119,16 +119,26 @@ typedef enum {
 	FIRST_NONCHAR_TOKEN = 128,
 	TOKEN_INT,
 	TOKEN_FLOAT,
+	TOKEN_STR,
 	TOKEN_NAME,
 } TokenKind;
 
+typedef enum {
+  TOKENMOD_HEX,
+  TOKENMOD_BIN,
+  TOKENMOD_OCT,
+  TOKENMOD_CHAR,
+} TokenMod;
+
 typedef struct {
 	TokenKind kind;
+  TokenMod mod;
 	const char *start;
 	const char *end;
 	union {
 		uint64_t int_val;
     double float_val;
+    const char *str_val;
 		const char *name;
 	};
 } Token;
@@ -157,7 +167,7 @@ uint8_t char_to_digit[256] = {
   ['f'] = 15, ['F'] = 15,
 };
 
-int64_t scan_int() {
+void scan_int() {
   uint64_t base = 10;
 
   // Handle hex values
@@ -196,10 +206,11 @@ int64_t scan_int() {
     val = val * base + digit;
     stream++;
   }
-  return val;
+  token.kind = TOKEN_INT;
+  token.int_val = val;
 }
 
-double scan_float() {
+void scan_float() {
   const char *start = stream;
   while (isdigit(*stream)) {
     stream++;
@@ -227,12 +238,89 @@ double scan_float() {
   if (val == HUGE_VAL || val == -HUGE_VAL) {
     syntax_error("Float literal overflow");
   }
-  return val;
+  token.kind = TOKEN_FLOAT;
+  token.float_val = val;
+  token.mod = 0;
+}
+
+char escape_to_char[256] = {
+  ['n'] = '\n',
+  ['r'] = '\r',
+  ['t'] = '\t',
+  ['v'] = '\v',
+  ['b'] = '\b',
+  ['a'] = '\a',
+  ['0'] = '\0',
+};
+
+void scan_char() {
+  assert(*stream == '\'');
+  stream++;
+
+  char val = 0;
+  if (*stream == '\'') {
+    syntax_error("Char literal cannot be empty");
+    stream++;
+  } else if (*stream == '\n') {
+    syntax_error("Char literal cannot contain newline");
+  } else if (*stream == '\\') {
+    stream++;
+    val = escape_to_char[*stream];
+    if (val == 0 && *stream != '0') {
+      syntax_error("Invalid char literal escape '\\%c'", *stream);
+    }
+    stream++;
+  } else {
+    val = *stream;
+    stream++;
+  }
+
+  if (*stream != '\'') {
+    syntax_error("Expected closing char quote, got '%c'", *stream);
+  } else {
+    stream++;
+  }
+
+  token.kind = TOKEN_INT;
+  token.int_val = val;
+  token.mod = TOKENMOD_CHAR;
+}
+
+void scan_str() {
+  assert(*stream == '"');
+  stream++;
+
+  char *str = NULL;
+
+  while (*stream && *stream != '"') {
+    char val = *stream;
+    if (val == '\n') {
+      syntax_error("String literal cannot contain newline");
+    } else if (val == '\\') {
+      stream++;
+      val = escape_to_char[*stream];
+      if (val == 0 && *stream != '0') {
+        syntax_error("Invalid string literal escape '\\%c'", *stream);
+      }
+    }
+    buf_push(str, val);
+    stream++;
+  }
+  if (*stream == '"') {
+    stream++;
+  } else {
+    syntax_error("Unexpected end of file withing string literal");
+  }
+
+  buf_push(str, 0); // zero terminate
+  token.kind = TOKEN_STR;
+  token.str_val = str;
 }
 
 // Scans the next token and sets any relevant data in the 'token' global variable
 void next_token() {
 BACK:
+  token.mod = 0;
 	token.start = stream;
 	// WARNING: the '0' ... '9' shortcut is probably not support by most compiles
 	switch (*stream) {
@@ -245,9 +333,14 @@ BACK:
       }
       goto BACK;
       break;
+  case '\'':
+      scan_char();
+      break;
+  case '"':
+      scan_str();
+      break;
   case '.':
-      token.kind = TOKEN_FLOAT;
-      token.float_val = scan_float();
+      scan_float();
       break;
 	case '0' ... '9': {
     while (isdigit(*stream)) {
@@ -255,12 +348,10 @@ BACK:
     }
     if (*stream == '.' || tolower(*stream) == 'e') {
       stream = token.start;
-      token.kind = TOKEN_FLOAT;
-      token.float_val = scan_float();
+      scan_float();
     } else {
       stream = token.start;
-      token.kind = TOKEN_INT;
-      token.int_val = scan_int();
+      scan_int();
     }
 	}	break;
 	case '_':
@@ -415,6 +506,7 @@ bool expect_token(TokenKind kind) {
 #define assert_token_name(x) assert(token.name == str_intern(x) && match_token(TOKEN_NAME))
 #define assert_token_int(x) assert(token.int_val == (x) && match_token(TOKEN_INT))
 #define assert_token_float(x) assert(token.float_val == (x) && match_token(TOKEN_FLOAT))
+#define assert_token_str(x) assert((strcmp(token.str_val, (x)) == 0) && match_token(TOKEN_STR))
 #define assert_token_eof() assert(is_token(0))
 
 void lex_test() {
@@ -434,6 +526,20 @@ void lex_test() {
   assert_token_float(3e10);
   assert_token_eof();
 
+  // Char literal tests
+  init_stream("'a' '\\n' '\0'");
+  assert_token_int('a');
+  assert_token_int('\n');
+  assert_token_int('\0');
+  assert_token_eof();
+
+  // String literals tests
+  init_stream("\"foo\" \"a\\nb\"");
+  assert_token_str("foo");
+  assert_token_str("a\nb");
+  assert_token_eof();
+
+  // Misc tests
 	init_stream("XY+(XY)_HELLO_THERE1,1234+9994");
   assert_token_name("XY");
   assert_token('+');
