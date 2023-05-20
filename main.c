@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <math.h>
 
 void fatal(const char *fmt, ...) {
 	va_list args;
@@ -117,6 +118,7 @@ bool is_alpha_numeric(char ch) {
 typedef enum {
 	FIRST_NONCHAR_TOKEN = 128,
 	TOKEN_INT,
+	TOKEN_FLOAT,
 	TOKEN_NAME,
 } TokenKind;
 
@@ -126,6 +128,7 @@ typedef struct {
 	const char *end;
 	union {
 		uint64_t int_val;
+    double float_val;
 		const char *name;
 	};
 } Token;
@@ -161,11 +164,16 @@ int64_t scan_int() {
   if (*stream == '0') {
     stream++;
     if (tolower(*stream) == 'x') {
+      stream++;
       base = 16;
+    } else if (tolower(*stream) == 'b') {
+      stream++;
+      base = 2;
+    } else if (isdigit(tolower(*stream))) {
+      base = 8;
     } else {
       syntax_error("Invalid integer literal suffix '%c'", *stream);
     }
-    stream++;
   }
 
   uint64_t val = 0;
@@ -191,19 +199,73 @@ int64_t scan_int() {
   return val;
 }
 
+double scan_float() {
+  const char *start = stream;
+  while (isdigit(*stream)) {
+    stream++;
+  }
+  if (*stream == '.') {
+    stream++;
+  }
+  while (isdigit(*stream)) {
+    stream++;
+  }
+  if (tolower(*stream) == 'e') {
+    stream++;
+    if (*stream == '+' || *stream == '-') {
+      stream++;
+    }
+    if (!isdigit(*stream)) {
+      syntax_error("Expected digit after float literal exponent, found '%c'.", *stream);
+    }
+    while (isdigit(*stream)) {
+      stream++;
+    }
+  }
+  const char *end = stream;
+  double val = strtod(start, NULL);
+  if (val == HUGE_VAL || val == -HUGE_VAL) {
+    syntax_error("Float literal overflow");
+  }
+  return val;
+}
+
 // Scans the next token and sets any relevant data in the 'token' global variable
 void next_token() {
+BACK:
 	token.start = stream;
 	// WARNING: the '0' ... '9' shortcut is probably not support by most compiles
 	switch (*stream) {
+  case ' ':
+  case '\n':
+  case '\r':
+  case '\v':
+      while (isspace(*stream)) {
+        stream++;
+      }
+      goto BACK;
+      break;
+  case '.':
+      token.kind = TOKEN_FLOAT;
+      token.float_val = scan_float();
+      break;
 	case '0' ... '9': {
-		token.kind = TOKEN_INT;
-		token.int_val = scan_int();
+    while (isdigit(*stream)) {
+      stream++;
+    }
+    if (*stream == '.' || tolower(*stream) == 'e') {
+      stream = token.start;
+      token.kind = TOKEN_FLOAT;
+      token.float_val = scan_float();
+    } else {
+      stream = token.start;
+      token.kind = TOKEN_INT;
+      token.int_val = scan_int();
+    }
 	}	break;
 	case '_':
 	case 'a' ... 'z':
 	case 'A' ... 'Z': {
-		const char *start = stream;
 		while (is_alpha_numeric(*stream) || *stream == '_') {
 			stream++;
 		}
@@ -280,6 +342,9 @@ void print_token(Token token) {
 	case TOKEN_INT:
 		printf("TOKEN INT: %lu\n", token.int_val);
 		break;
+	case TOKEN_FLOAT:
+		printf("TOKEN FLOAT: %lf\n", token.float_val);
+		break;
 	case TOKEN_NAME:
 		printf("TOKEN NAME: %.*s\n", (int)(token.end - token.start), token.start);
 		break;
@@ -297,6 +362,9 @@ size_t copy_token_kind_name(char *dest, size_t dest_size, TokenKind kind) {
     break;
 	case TOKEN_INT:
 		n = snprintf(dest, dest_size, "integer");
+		break;
+	case TOKEN_FLOAT:
+		n = snprintf(dest, dest_size, "float");
 		break;
 	case TOKEN_NAME:
 		n = snprintf(dest, dest_size, "name");
@@ -346,12 +414,24 @@ bool expect_token(TokenKind kind) {
 #define assert_token(x) assert(match_token(x))
 #define assert_token_name(x) assert(token.name == str_intern(x) && match_token(TOKEN_NAME))
 #define assert_token_int(x) assert(token.int_val == (x) && match_token(TOKEN_INT))
+#define assert_token_float(x) assert(token.float_val == (x) && match_token(TOKEN_FLOAT))
 #define assert_token_eof() assert(is_token(0))
 
 void lex_test() {
-  // Make sure UINT64_MAX doesn't trigger overflow
-  init_stream("18446744073709551615");
+  // Integer literal tests
+  init_stream("18446744073709551615 0xffffffffffffffff 042 0b1111");
   assert_token_int(18446744073709551615ull);
+  assert_token_int(0xffffffffffffffffull);
+  assert_token_int(042);
+  assert_token_int(0xF);
+  assert_token_eof();
+
+  // Float literals tests
+  init_stream("3.14 .123 42. 3e10");
+  assert_token_float(3.14);
+  assert_token_float(.123);
+  assert_token_float(42.);
+  assert_token_float(3e10);
   assert_token_eof();
 
 	init_stream("XY+(XY)_HELLO_THERE1,1234+9994");
@@ -367,7 +447,6 @@ void lex_test() {
   assert_token_int(9994);
   assert_token_eof();
 }
-
 
 void intern_test() {
 	char x[] = "hello";
