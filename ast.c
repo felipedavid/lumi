@@ -11,7 +11,8 @@ typedef enum {
 } TypespecKind;
 
 typedef struct {
-  BUF(Typespec **args);
+  Typespec **args;
+  size_t num_args;
   Typespec *ret;
 } FuncTypespec;
 
@@ -76,7 +77,8 @@ typedef struct {
 } EnumItem;
 
 typedef struct {
-  BUF(const char **names); 
+  const char **names; 
+  size_t num_names;
   Typespec *type;
 } AggregateItem;
 
@@ -86,7 +88,8 @@ typedef struct {
 } FuncParam;
 
 typedef struct {
-  BUF(FuncParam *params); 
+  FuncParam *params; 
+  size_t num_params;
   Typespec *ret_type;
 } FuncDecl;
 
@@ -94,8 +97,14 @@ typedef struct {
   DeclKind kind;
   const char *name;
   union {
-    BUF(EnumItem *enum_items);
-    BUF(AggregateItem *aggregate_items); 
+    struct {
+      EnumItem *enum_items;
+      size_t num_enum_items;
+    };
+    struct {
+      AggregateItem *aggregate_items; 
+      size_t num_aggregate_items;
+    };
     struct {
       Typespec *type;
       Expr *expr;
@@ -132,7 +141,8 @@ struct Expr {
     // Compound literals
     struct {
       Typespec *compound_type;
-      BUF(Expr **compound_args); 
+      Expr **compound_args; 
+      size_t num_compound_args;
     };
     // Casts
     struct {
@@ -143,7 +153,10 @@ struct Expr {
       // Unary
       Expr *operand;
       union {
-        BUF(Expr **args);
+        struct {
+          Expr **args;
+          size_t num_args;
+        };
         Expr *index;
         const char *field;
       };
@@ -192,9 +205,10 @@ Expr *expr_name(const char *name) {
   return expr;
 }
 
-Expr *expr_call(Expr *operand, Expr **args) {
+Expr *expr_call(Expr *operand, size_t num_args, Expr **args) {
   Expr *expr = expr_alloc(EXPR_CALL);
   expr->operand = operand;
+  expr->num_args = num_args;
   expr->args = args;
   return expr;
 }
@@ -253,7 +267,7 @@ void print_type(Typespec *type) {
   case TYPESPEC_FUNC: {
     FuncTypespec func = type->func;
     printf("(func (");
-    for (Typespec **it = func.args; it != buf_end(func.args); it++) {
+    for (Typespec **it = func.args; it != func.args+func.num_args; it++) {
       printf(" ");
       print_type(*it);
     }
@@ -302,7 +316,7 @@ void print_expr(Expr *expr) {
   case EXPR_CALL:
     printf("(");
     print_expr(expr->operand);
-    for (Expr **it = expr->args; it != buf_end(expr->args); it++) {
+    for (Expr **it = expr->args; it != expr->args + expr->num_args; it++) {
       printf(" ");
       print_expr(*it);
     }
@@ -366,7 +380,8 @@ typedef enum {
 } StmtKind;
 
 typedef struct {
-  BUF(Stmt **stmts);
+  Stmt **stmts;
+  size_t num_stmts;
 } StmtBlock;
 
 typedef struct {
@@ -375,7 +390,8 @@ typedef struct {
 } Elseif;
 
 typedef struct {
-  BUF(Expr **exprs);
+  Expr **exprs;
+  size_t num_exprs;
   StmtBlock block;
 } Case;
 
@@ -386,7 +402,8 @@ struct Stmt {
   union {
     // If
     struct {
-      BUF(Elseif *elseifs);
+      Elseif *elseifs;
+      size_t num_elseifs;
       StmtBlock else_block;
     };
     // For
@@ -396,7 +413,8 @@ struct Stmt {
     };
     // Switch
     struct {
-      BUF(Case *cases);
+      Case *cases;
+      size_t num_cases;
     };
     // Auto-assign
     struct {

@@ -111,15 +111,12 @@ void print_expr_line(Expr *expr) {
 }
 
 void expr_test() {
-  Expr **fact_args = NULL;
-  buf_push(fact_args, expr_int(42));
-
   Expr *exprs[] = {
     expr_binary('+', expr_int(1), expr_int(2)),
     expr_unary('-', expr_float(3.14)),
     expr_ternary(expr_name("flag"), expr_str("true"), expr_str("false")),
     expr_field(expr_name("person"), "name"),
-    expr_call(expr_name("fact"), fact_args),
+    expr_call(expr_name("fact"), 1, ((Expr*[]){expr_int(42)})),
     expr_index(expr_field(expr_name("person"), "siblings"), expr_int(3)),
     expr_cast(typespec_pointer(typespec_name("int")), expr_name("void_ptr")),
   };
