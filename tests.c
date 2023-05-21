@@ -105,8 +105,37 @@ void intern_test() {
 	assert(px != pz);
 }
 
+void print_expr_line(Expr *expr) {
+  print_expr(expr);
+  printf("\n");
+}
+
+void expr_test() {
+  Expr **fact_args = NULL;
+  buf_push(fact_args, expr_int(42));
+
+  Expr *exprs[] = {
+    expr_binary('+', expr_int(1), expr_int(2)),
+    expr_unary('-', expr_float(3.14)),
+    expr_ternary(expr_name("flag"), expr_str("true"), expr_str("false")),
+    expr_field(expr_name("person"), "name"),
+    expr_call(expr_name("fact"), fact_args),
+    expr_index(expr_field(expr_name("person"), "siblings"), expr_int(3)),
+    expr_cast(typespec_pointer(typespec_name("int")), expr_name("void_ptr")),
+  };
+
+  for (Expr **it = exprs; it != exprs + sizeof(exprs)/sizeof(*exprs); it++) {
+    print_expr_line(*it);
+  }
+}
+
+void ast_test() {
+  expr_test();
+}
+
 void run_tests() {
 	buf_test();
 	lex_test();
 	intern_test();
+  ast_test();
 }
