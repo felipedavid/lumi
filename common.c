@@ -1,3 +1,12 @@
+void *xcalloc(size_t n_items, size_t n_bytes) {
+	void *ptr = calloc(n_items, n_bytes);
+	if (ptr == NULL) {
+		fprintf(stderr, "xcalloc failed");
+		exit(1);
+	}
+	return ptr;
+}
+
 void *xmalloc(size_t n_bytes) {
 	void *ptr = malloc(n_bytes);
 	if (ptr == NULL) {
@@ -38,6 +47,7 @@ typedef struct {
 // Why we are choosing to use macros? 
 // 	- Some operations like "buf_push" needs to reassign the pointer to the
 // 	buffer, we could use a function but it would not be as clean
+#define BUF(x) x
 #define buf__header(b) ((b) ? (Buf_Header *)((char*)(b) - offsetof(Buf_Header, content)) : 0)
 #define buf__fits(b, n) 
 #define buf__make_fit(b, n) (((buf_len(b)+n) < buf_cap(b)) ? 0 : ((b) = buf__grow((b), (buf_len(b)+n), sizeof(*b))))

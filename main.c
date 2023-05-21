@@ -10,6 +10,7 @@
 
 #include "common.c"
 #include "lexer.c"
+#include "ast.c"
 #include "tests.c"
 
 int main(int argc, char **argv) {
