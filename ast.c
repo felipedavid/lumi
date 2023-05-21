@@ -53,6 +53,12 @@ Typespec *typespec_array(Typespec *base, Expr *size) {
   return type;
 }
 
+Typespec *typespec_func(FuncTypespec func) {
+  Typespec *type = typespec_alloc(TYPESPEC_FUNC);
+  type->func = func;
+  return type;
+}
+
 typedef enum {
   DECL_NONE,
   DECL_ENUM,
