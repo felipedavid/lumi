@@ -14,7 +14,6 @@
 #include "tests.c"
 
 int main(int argc, char **argv) {
-  run_tests();
-
-  return 0;
+	run_tests();
+	return 0;
 }
