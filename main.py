@@ -1,7 +1,6 @@
 import sys
 from scanner import Scanner
 
-
 class Lumi:
     had_error: bool
 
@@ -33,7 +32,6 @@ class Lumi:
 
             self.run(src)
             self.had_error = False
-
 
 def main():
     nargs = len(sys.argv) - 1

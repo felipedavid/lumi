@@ -48,6 +48,7 @@ class TokenKind(Enum):
     TRUE = auto()
     VAR = auto()
     WHILE = auto()
+    EOF = auto()
 
 
 class Token:
@@ -63,13 +64,53 @@ class Token:
         self.line = line
 
     def __str__(self):
-        return f"{self.type} {self.lexeme} {self.literal}"
+        return f"{self.kind} {self.lexeme} {self.literal}"
 
 
 class Scanner:
+    source: str
+    tokens: list[Token] = []
+    line: int = 1
+    start: int = 0
+    current: int = 0
 
     def __init__(self, source: str):
         self.source = source
 
     def scan_tokens(self) -> list[Token]:
-        return []
+        while not self.is_at_end():
+           self.start = self.current 
+           self.scan_token()
+        
+        self.tokens.append(Token(TokenKind.EOF, '', None, self.line))
+
+        return self.tokens
+
+    def scan_token(self) -> None:
+        ch = self.advance()
+
+        single_char_tokens_kinds = {
+            '(': TokenKind.LEFT_PAREN,
+            ')': TokenKind.RIGHT_PAREN,
+            '{': TokenKind.LEFT_BRACE,
+            '}': TokenKind.RIGHT_BRACE,
+        }
+
+        if kind := single_char_tokens_kinds.get(ch):
+            self.add_token(kind)
+
+    def add_token(self, kind: TokenKind) -> None:
+        self.add_token(kind, None) 
+
+    def add_token(self, kind: TokenKind, literal: Any):
+        lexeme = self.source[self.start:self.current]
+        self.tokens.append(Token(kind, lexeme, literal, self.line))
+
+    def advance(self) -> None:
+        ch = self.source[self.current]
+        self.current += 1
+        return ch
+
+    def is_at_end(self) -> bool:
+        return self.current >= len(self.source)
+    
