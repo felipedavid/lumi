@@ -94,15 +94,18 @@ class Scanner:
             ')': TokenKind.RIGHT_PAREN,
             '{': TokenKind.LEFT_BRACE,
             '}': TokenKind.RIGHT_BRACE,
+            ',': TokenKind.COMMA,
+            '.': TokenKind.DOT,
+            '-': TokenKind.MINUS,
+            '+': TokenKind.PLUS,
+            ';': TokenKind.SEMICOLON,
+            '*': TokenKind.STAR,
         }
 
         if kind := single_char_tokens_kinds.get(ch):
             self.add_token(kind)
 
-    def add_token(self, kind: TokenKind) -> None:
-        self.add_token(kind, None) 
-
-    def add_token(self, kind: TokenKind, literal: Any):
+    def add_token(self, kind: TokenKind, literal: Any = None) -> None:
         lexeme = self.source[self.start:self.current]
         self.tokens.append(Token(kind, lexeme, literal, self.line))
 
