@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from typing import Any
-
+from error import error
 
 class TokenKind(Enum):
     # Single-character tokens
@@ -64,7 +64,7 @@ class Token:
         self.line = line
 
     def __str__(self):
-        return f"{self.kind} {self.lexeme} {self.literal}"
+        return f"[kind: {self.kind}] [lexeme: '{self.lexeme}'] [value: {self.literal}]"
 
 
 class Scanner:
@@ -104,6 +104,9 @@ class Scanner:
 
         if kind := single_char_tokens_kinds.get(ch):
             self.add_token(kind)
+            return
+        
+        error(self.line, f"Unexpected character '{ch}'")
 
     def add_token(self, kind: TokenKind, literal: Any = None) -> None:
         lexeme = self.source[self.start:self.current]
