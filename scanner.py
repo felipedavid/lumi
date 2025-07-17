@@ -100,6 +100,12 @@ class Scanner:
             '+': TokenKind.PLUS,
             ';': TokenKind.SEMICOLON,
             '*': TokenKind.STAR,
+            # This don't work. The table is built only one time. it's not like a
+            # switch statement.
+            '!': self.if_matches('=', TokenKind.BANG_EQUAL, TokenKind.BANG),
+            '=': self.if_matches('=', TokenKind.EQUAL_EQUAL, TokenKind.EQUAL),
+            '<': self.if_matches('=', TokenKind.LESS_EQUAL, TokenKind.LESS),
+            '>': self.if_matches('=', TokenKind.GREATER_EQUAL, TokenKind.GREATER),
         }
 
         if kind := single_char_tokens_kinds.get(ch):
@@ -116,6 +122,17 @@ class Scanner:
         ch = self.source[self.current]
         self.current += 1
         return ch
+
+    def if_matches(self, ch: str, v1: TokenKind, v2: TokenKind) -> TokenKind:
+        if self.peek() == ch:
+            self.current += 1
+            return v1
+        return v2
+    
+    def peek(self) -> str | None:
+        if self.is_at_end():
+            return None
+        return self.source[self.current]
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.source)
